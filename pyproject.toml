@@ -1,0 +1,75 @@
+[tool.poetry]
+name = "gspits"
+version = "0.1.0"
+description = "A collection of routines to analyze the ground-state properties and dynamics of a Bose gas using the Gross-Pitaevskii equation."
+license = "Apache-2.0"
+authors = [
+  "Omar Abel Rodríguez-López <oarodriguez.mx@gmail.com>"
+]
+readme = "README.md"
+homepage = "https://github.com/oarodriguez/gspits"
+repository = "https://github.com/oarodriguez/gspits"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: Microsoft :: Windows",
+  "Operating System :: POSIX :: Linux",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Physics",
+]
+
+packages = [
+  { include = "gspits", from = "src" }
+]
+
+[tool.poetry.dependencies]
+python = ">=3.9.1,<3.10"
+numpy = "^1.20.2"
+scipy = "^1.6.2"
+numba = "^0.53.1"
+typer = "^0.3.2"
+toolz = "^0.11.1"
+h5py = "^3.2.1"
+rich = "^10.0.1"
+dask = { extras = ["bag"], version = "^2021.3.1" }
+matplotlib = { version = "^3.4.0", optional = true }
+jupyter = { version = "^1.0.0", optional = true }
+jupyterlab = { version = "^3.0.12", optional = true }
+jupyterlab-code-formatter = { version = "^1.4.5", optional = true }
+jupytext = { version = "^1.11.1", optional = true }
+
+[tool.poetry.dev-dependencies]
+pytest = "^6.2.2"
+black = "^20.8b1"
+isort = "^5.8.0"
+flake8 = "^3.9.0"
+mypy = "^0.812"
+pydocstyle = "^6.0.0"
+
+[tool.poetry.extras]
+plots = ["matplotlib"]
+jupyter = ["jupyter", "jupyterlab", "jupyterlab-code-formatter", "jupytext"]
+
+[tool.black]
+line-length = 79
+target-version = ["py38"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 79
+src_paths = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-s -vv -ra"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
