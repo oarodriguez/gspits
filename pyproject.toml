@@ -51,6 +51,8 @@ isort = "^5.8.0"
 flake8 = "^3.9.0"
 mypy = "^0.812"
 pydocstyle = "^6.0.0"
+Sphinx = "^3.5.4"
+sphinx-rtd-theme = "^0.5.2"
 
 [tool.poetry.extras]
 plots = ["matplotlib"]
