@@ -8,7 +8,11 @@ Copyright © 2021, Omar Abel Rodríguez-López.
 
 import importlib.metadata as importlib_metadata
 
+from .mesh import SpatialMesh, TimeMesh
+
 _metadata = importlib_metadata.metadata("gspits")
 
 # Export package information.
 __version__ = _metadata["version"]
+
+__all__ = ["__version__", "SpatialMesh", "TimeMesh"]
