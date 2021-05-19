@@ -139,7 +139,7 @@ def format_check():
 
 @unique
 class DocFormat(str, Enum):
-    """Document Formats"""
+    """Document Formats."""
 
     HTML = "html"
 
