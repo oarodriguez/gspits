@@ -57,8 +57,7 @@ sphinx-rtd-theme = "^0.5.2"
 hypothesis = "^6.10.1"
 
 [tool.poetry.extras]
-plots = ["matplotlib"]
-jupyter = ["jupyter", "jupyterlab", "jupyterlab-code-formatter", "jupytext"]
+jupyter = ["matplotlib", "jupyter", "jupyterlab", "jupyterlab-code-formatter", "jupytext"]
 
 [tool.black]
 line-length = 79
