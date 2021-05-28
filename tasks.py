@@ -147,6 +147,13 @@ def format_check():
     _run(MYPY_ARGS)
 
 
+@app.command()
+def lint():
+    """Run all linting tasks."""
+    _run(PYDOCSTYLE_ARGS)
+    _run(FLAKE8_ARGS)
+
+
 @unique
 class DocFormat(str, Enum):
     """Document Formats."""
