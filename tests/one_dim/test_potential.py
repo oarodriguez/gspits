@@ -1,56 +1,9 @@
-import numpy as np
 import pytest
-from attr import dataclass
 from hypothesis import given, settings
 from hypothesis import strategies as stg
-from numba import njit
 
 from gspits import SpatialMesh
-from gspits.one_dim import (
-    ExternalPotential,
-    HarmonicOscillator,
-    SupportsExternalPotential,
-    external_potential,
-)
-
-
-@njit
-def _ho_potential(domain_mesh: np.ndarray) -> np.ndarray:
-    """Evaluate the harmonic potential in the mesh."""
-    return 0.5 * domain_mesh ** 2
-
-
-@dataclass(frozen=True)
-class Potential:
-    """Represent an dummy harmonic oscillator potential in 1D."""
-
-    def __external_potential__(self) -> ExternalPotential:
-        """Get a callable that evaluates the harmonic potential."""
-        return _ho_potential
-
-
-@dataclass(frozen=True)
-class PotentialSC(SupportsExternalPotential):
-    """Represent an dummy harmonic oscillator potential in 1D."""
-
-    def __external_potential__(self) -> ExternalPotential:
-        """Get a callable that evaluates the harmonic potential."""
-        return _ho_potential
-
-
-def test_potential():
-    """Verify subtyping relationships."""
-    ho_pot = Potential()
-    assert isinstance(external_potential(ho_pot), ExternalPotential)
-    assert isinstance(ho_pot, SupportsExternalPotential)
-
-
-def test_potential_sc():
-    """Verify subtyping relationships with explicit subclassing."""
-    ho_pot = PotentialSC()
-    assert isinstance(external_potential(ho_pot), ExternalPotential)
-    assert isinstance(ho_pot, SupportsExternalPotential)
-
+from gspits.one_dim import HarmonicOscillator, external_potential
 
 valid_mass_stg = stg.floats(
     min_value=0,

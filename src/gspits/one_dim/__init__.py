@@ -1,15 +1,19 @@
 """Routines for Bose gases in one-dimensional geometries."""
 
-from gspits.one_dim.potential import (
+from .potential import HarmonicOscillator
+from .system import (
     ExternalPotential,
-    HarmonicOscillator,
+    Hamiltonian,
+    State,
     SupportsExternalPotential,
     external_potential,
 )
 
 __all__ = [
     "ExternalPotential",
+    "Hamiltonian",
     "HarmonicOscillator",
+    "State",
     "SupportsExternalPotential",
     "external_potential",
 ]
