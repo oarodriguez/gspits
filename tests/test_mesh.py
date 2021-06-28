@@ -77,5 +77,5 @@ def test_times_mesh(time_step: float, num_steps: int, ini_time: float):
     mesh_as_array = time_mesh.as_array()
     assert mesh_as_array.min() == time_mesh.ini_time
     assert np.allclose(np.diff(mesh_as_array), time_mesh.time_step)
-    mesh_as_array = time_mesh.as_array()
+    mesh_as_array = time_mesh.as_array(endpoint=True)
     assert np.allclose(np.diff(mesh_as_array), time_mesh.time_step)

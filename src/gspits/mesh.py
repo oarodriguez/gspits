@@ -87,5 +87,5 @@ class TimeMesh:
         """
         num_steps = self.num_steps + (1 if endpoint else 0)
         return np.linspace(
-            self.ini_time, self.finish_time, num=num_steps, endpoint=False
+            self.ini_time, self.finish_time, num=num_steps, endpoint=endpoint
         )
