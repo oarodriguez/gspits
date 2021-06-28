@@ -14,7 +14,7 @@ __all__ = [
 
 @dataclass(frozen=True)
 class HarmonicTrap(Hamiltonian):
-    """Represent an harmonic oscillator potential in 1D."""
+    """Represent a Bose gas in a 1D harmonic oscillator potential."""
 
     # Particle mass.
     mass: float
