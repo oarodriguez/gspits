@@ -5,7 +5,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as stg
 
 from gspits import Mesh
-from gspits.one_dim import HarmonicTrap
+from gspits.one_dim import HTHamiltonian
 
 # Some parameter values that define a valid harmonic trap potential.
 MASS = 1
@@ -19,9 +19,9 @@ NUM_BOSONS = 1000
     freq=stg.floats(allow_infinity=False, allow_nan=False, max_value=0),
     num_bosons=stg.integers(min_value=-1_000_000, max_value=1),
 )
-def test_ho_invalid_params(mass: float, freq: float, num_bosons: int):
+def test_ht_invalid_params(mass: float, freq: float, num_bosons: int):
     """Check that invalid parameters are correctly managed."""
-    valid_ho = HarmonicTrap(
+    valid_ho = HTHamiltonian(
         mass=MASS, freq=FREQ, scat_length=SCAT_LENGTH, num_bosons=NUM_BOSONS
     )
     with pytest.raises(ValueError):
@@ -55,9 +55,9 @@ _domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_segments=128)
     num_bosons=stg.integers(min_value=3, max_value=1_000_000),
 )
 @settings(max_examples=3, deadline=None)
-def test_ho(mass: float, freq: float, scat_length: float, num_bosons: int):
+def test_ht(mass: float, freq: float, scat_length: float, num_bosons: int):
     """Check that the core function works."""
-    ho = HarmonicTrap(
+    ho = HTHamiltonian(
         mass=mass, freq=freq, scat_length=scat_length, num_bosons=num_bosons
     )
     domain_array = _domain_mesh.as_array()

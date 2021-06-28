@@ -1,6 +1,6 @@
 """Routines for Bose gases in one-dimensional geometries."""
 
-from .hamiltonian import HarmonicTrap
+from .single import HTHamiltonian
 from .system import (
     ExternalPotential,
     Hamiltonian,
@@ -11,8 +11,8 @@ from .system import (
 
 __all__ = [
     "ExternalPotential",
+    "HTHamiltonian",
     "Hamiltonian",
-    "HarmonicTrap",
     "State",
     "SupportsExternalPotential",
     "external_potential",

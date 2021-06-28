@@ -1,4 +1,4 @@
-"""Collection of common one-dimensional Hamiltonians."""
+"""Hamiltonians for one-dimensional, single-species Bose gases."""
 
 import numpy as np
 from attr import dataclass
@@ -8,13 +8,16 @@ from numpy import pi
 from .system import Hamiltonian
 
 __all__ = [
-    "HarmonicTrap",
+    "HTHamiltonian",
 ]
 
 
 @dataclass(frozen=True)
-class HarmonicTrap(Hamiltonian):
-    """Represent a Bose gas in a 1D harmonic oscillator potential."""
+class HTHamiltonian(Hamiltonian):
+    """Harmonic Trap Hamiltonian.
+
+    Represent a Bose gas within a 1D harmonic trap.
+    """
 
     # Particle mass.
     mass: float
@@ -51,10 +54,10 @@ class HarmonicTrap(Hamiltonian):
         mass = self.mass
 
         @njit
-        def _ho_potential(
+        def _ht_potential(
             domain_mesh: np.ndarray,
         ) -> np.ndarray:  # pragma: no cover
-            """Evaluate the harmonic potential in the mesh."""
+            """Evaluate the harmonic trap potential in the mesh."""
             return 0.5 * mass * (freq * domain_mesh) ** 2
 
-        return _ho_potential
+        return _ht_potential
