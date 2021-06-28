@@ -51,8 +51,8 @@ def gaussian_state(mesh: Mesh):
     return State(mesh=mesh, wave_func=wave_func)
 
 
-@given(num_steps=st.integers(min_value=32, max_value=128))
-def test_state(num_steps: int):
+@given(num_segments=st.integers(min_value=32, max_value=128))
+def test_state(num_segments: int):
     """Check that Gaussian states are normalized.
 
     The normalization condition accuracy depends on the number of
@@ -60,6 +60,8 @@ def test_state(num_steps: int):
     and an absolute tolerance for the state norm of 1e-8.
     NOTE: How can we improve this test?
     """
-    spatial_mesh = Mesh(lower_bound=-10, upper_bound=10, num_steps=num_steps)
+    spatial_mesh = Mesh(
+        lower_bound=-10, upper_bound=10, num_segments=num_segments
+    )
     state = gaussian_state(spatial_mesh)
     assert state.norm == pytest.approx(1, abs=1e-8)

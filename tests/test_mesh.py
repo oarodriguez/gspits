@@ -7,33 +7,33 @@ from gspits import Mesh, TimeMesh
 
 valid_lower_bound_stg = stg.floats(min_value=0, max_value=2)
 valid_upper_bound_stg = stg.floats(min_value=3, max_value=4)
-valid_num_steps_stg = stg.integers(min_value=1, max_value=512)
+valid_num_segments_steps_stg = stg.integers(min_value=1, max_value=512)
 
 
 @given(lower_bound=stg.floats(min_value=100, max_value=200))
 def test_mesh(lower_bound: float):
     """Test spatial meshes with invalid bounds"""
     with pytest.raises(ValueError):
-        Mesh(lower_bound, upper_bound=0, num_steps=128)
+        Mesh(lower_bound, upper_bound=0, num_segments=128)
 
 
-@given(num_steps=stg.integers(min_value=-1000, max_value=0))
-def test_mesh_num_steps(num_steps: int):
+@given(num_segments=stg.integers(min_value=-1000, max_value=0))
+def test_mesh_num_steps(num_segments: int):
     """Test spatial meshes with invalid number of steps."""
     with pytest.raises(ValueError):
-        Mesh(lower_bound=0, upper_bound=1, num_steps=num_steps)
+        Mesh(lower_bound=0, upper_bound=1, num_segments=num_segments)
 
 
 @given(
     lower_bound=valid_lower_bound_stg,
     upper_bound=valid_upper_bound_stg,
-    num_steps=valid_num_steps_stg,
+    num_segments=valid_num_segments_steps_stg,
 )
 def test_mesh_bounds(
-    lower_bound: float, upper_bound: float, num_steps: int
+    lower_bound: float, upper_bound: float, num_segments: int
 ):
     """Test routines for creating spatial meshes."""
-    time_mesh = Mesh(lower_bound, upper_bound, num_steps)
+    time_mesh = Mesh(lower_bound, upper_bound, num_segments)
     mesh_as_array = time_mesh.as_array()
     assert mesh_as_array.min() == time_mesh.lower_bound
     assert np.allclose(np.diff(mesh_as_array), time_mesh.step_size)
@@ -66,7 +66,7 @@ def test_time_mesh_time_step(time_step: float):
 
 @given(
     time_step=valid_time_step_stg,
-    num_steps=valid_num_steps_stg,
+    num_steps=valid_num_segments_steps_stg,
     ini_time=valid_ini_time_stg,
 )
 def test_times_mesh(time_step: float, num_steps: int, ini_time: float):

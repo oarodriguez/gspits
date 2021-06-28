@@ -16,20 +16,20 @@ class Mesh:
     # Upper bound.
     upper_bound: float
 
-    # Mesh number of steps.
-    num_steps: int
+    # Mesh number of segments.
+    num_segments: int
 
     def __attrs_post_init__(self):
         """Post-initialization procedure."""
         if not self.upper_bound > self.lower_bound:
             raise ValueError
-        if not self.num_steps >= 1:
+        if not self.num_segments >= 1:
             raise ValueError
 
     @property
     def step_size(self):
         """Mesh step size."""
-        return (self.upper_bound - self.lower_bound) / self.num_steps
+        return (self.upper_bound - self.lower_bound) / self.num_segments
 
     def as_array(self, endpoint: bool = False):
         """Return an array with the mesh points.
@@ -41,11 +41,11 @@ class Mesh:
             value is `False`.
         :return: The NumPy array representing the mesh.
         """
-        num_steps = self.num_steps + (1 if endpoint else 0)
+        num_segments = self.num_segments + (1 if endpoint else 0)
         return np.linspace(
             self.lower_bound,
             self.upper_bound,
-            num=num_steps,
+            num=num_segments,
             endpoint=endpoint,
         )
 

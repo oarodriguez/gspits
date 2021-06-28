@@ -45,7 +45,7 @@ def test_ho_invalid_params(mass: float, freq: float, num_bosons: int):
 
 # TODO: Maybe this mesh should be a fixture with arbitrary bounds and
 #  number of steps. How?
-_domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_steps=128)
+_domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_segments=128)
 
 
 @given(
