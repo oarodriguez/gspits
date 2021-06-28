@@ -1,6 +1,6 @@
 """Routines for Bose gases in one-dimensional geometries."""
 
-from .potential import HarmonicTrap
+from .hamiltonian import HarmonicTrap
 from .system import (
     ExternalPotential,
     Hamiltonian,
