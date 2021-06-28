@@ -1,36 +1,46 @@
+import numpy as np
 import pytest
+from attr import evolve
 from hypothesis import given, settings
 from hypothesis import strategies as stg
 
 from gspits import SpatialMesh
-from gspits.one_dim import HarmonicOscillator, external_potential
+from gspits.one_dim import HarmonicTrap
 
-valid_mass_stg = stg.floats(
-    min_value=0,
-    max_value=1e3,
-    exclude_min=True,
-    allow_nan=False,
-    allow_infinity=False,
+# Some parameter values that define a valid harmonic trap potential.
+MASS = 1
+FREQ = 1
+SCAT_LENGTH = 1
+NUM_BOSONS = 1000
+
+
+@given(
+    mass=stg.floats(allow_infinity=False, allow_nan=False, max_value=0),
+    freq=stg.floats(allow_infinity=False, allow_nan=False, max_value=0),
+    num_bosons=stg.integers(min_value=-1_000_000, max_value=1),
 )
-invalid_mass_stg = stg.floats(
-    allow_infinity=False, allow_nan=False, max_value=0
-)
-valid_freq_stg = valid_mass_stg
-invalid_freq_stg = invalid_mass_stg
-
-
-@given(mass=invalid_mass_stg, freq=valid_freq_stg)
-def test_ho_invalid_mass(mass: float, freq: float):
-    """Check for invalid masses."""
+def test_ho_invalid_params(mass: float, freq: float, num_bosons: int):
+    """Check that invalid parameters are correctly managed."""
+    valid_ho = HarmonicTrap(
+        mass=MASS, freq=FREQ, scat_length=SCAT_LENGTH, num_bosons=NUM_BOSONS
+    )
     with pytest.raises(ValueError):
-        HarmonicOscillator(mass=mass, freq=freq)
-
-
-@given(mass=valid_mass_stg, freq=invalid_freq_stg)
-def test_ho_invalid_freq(mass: float, freq: float):
-    """Check for invalid frequencies."""
+        # Check invalid masses.
+        evolve(valid_ho, mass=mass)
     with pytest.raises(ValueError):
-        HarmonicOscillator(mass=mass, freq=freq)
+        # Check invalid frequencies.
+        evolve(valid_ho, freq=freq)
+    with pytest.raises(ValueError):
+        # Check invalid number of bosons.
+        evolve(valid_ho, num_bosons=num_bosons)
+    # NOTE: The scattering length can take, in principle, any real value.
+    # Raise an error with NaNs.
+    with pytest.raises(ValueError):
+        evolve(valid_ho, mass=np.nan)
+    with pytest.raises(ValueError):
+        evolve(valid_ho, freq=np.nan)
+    with pytest.raises(ValueError):
+        evolve(valid_ho, scat_length=np.nan)
 
 
 # TODO: Maybe this mesh should be a fixture with arbitrary bounds and
@@ -41,12 +51,16 @@ _domain_mesh = SpatialMesh(lower_bound=-10, upper_bound=10, num_steps=128)
 @given(
     mass=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
     freq=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
+    scat_length=stg.floats(min_value=-1e-2, max_value=1e2, allow_nan=False),
+    num_bosons=stg.integers(min_value=3, max_value=1_000_000),
 )
 @settings(max_examples=3, deadline=None)
-def test_ho(mass: float, freq: float):
+def test_ho(mass: float, freq: float, scat_length: float, num_bosons: int):
     """Check that the core function works."""
-    ho = HarmonicOscillator(mass=mass, freq=freq)
+    ho = HarmonicTrap(
+        mass=mass, freq=freq, scat_length=scat_length, num_bosons=num_bosons
+    )
     domain_array = _domain_mesh.as_array()
-    ho_pot_func = external_potential(ho)
+    ho_pot_func = ho.external_potential
     func_array = ho_pot_func(domain_array)
     assert func_array.shape == domain_array.shape
