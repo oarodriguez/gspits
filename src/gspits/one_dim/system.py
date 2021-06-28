@@ -6,7 +6,7 @@ from typing import Protocol, runtime_checkable
 import numpy as np
 from attr import dataclass
 
-from gspits import SpatialMesh
+from gspits import Mesh
 
 __all__ = [
     "ExternalPotential",
@@ -82,7 +82,7 @@ class State:
     __slots__ = ()
 
     # The domain mesh.
-    mesh: SpatialMesh
+    mesh: Mesh
 
     # Array with the wave function values at the mesh points.
     wave_func: np.ndarray

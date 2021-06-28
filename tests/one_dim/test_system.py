@@ -6,7 +6,7 @@ from hypothesis import given
 from numba import njit
 from numpy import pi
 
-from gspits import SpatialMesh
+from gspits import Mesh
 from gspits.one_dim import ExternalPotential, Hamiltonian, State
 
 
@@ -40,7 +40,7 @@ def test_hamiltonian():
     assert isinstance(hamiltonian, Hamiltonian)
 
 
-def gaussian_state(mesh: SpatialMesh):
+def gaussian_state(mesh: Mesh):
     """Build a normalized Gaussian state.
 
     :param mesh: A mesh where the state will be defined.
@@ -60,8 +60,6 @@ def test_state(num_steps: int):
     and an absolute tolerance for the state norm of 1e-8.
     NOTE: How can we improve this test?
     """
-    spatial_mesh = SpatialMesh(
-        lower_bound=-10, upper_bound=10, num_steps=num_steps
-    )
+    spatial_mesh = Mesh(lower_bound=-10, upper_bound=10, num_steps=num_steps)
     state = gaussian_state(spatial_mesh)
     assert state.norm == pytest.approx(1, abs=1e-8)

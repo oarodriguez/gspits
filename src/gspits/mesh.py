@@ -3,11 +3,11 @@
 import numpy as np
 from attr import dataclass
 
-__all__ = ["SpatialMesh", "TimeMesh"]
+__all__ = ["Mesh", "TimeMesh"]
 
 
 @dataclass(frozen=True)
-class SpatialMesh:
+class Mesh:
     """Spatial mesh specification."""
 
     # Lower bound.

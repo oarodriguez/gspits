@@ -4,7 +4,7 @@ from attr import evolve
 from hypothesis import given, settings
 from hypothesis import strategies as stg
 
-from gspits import SpatialMesh
+from gspits import Mesh
 from gspits.one_dim import HarmonicTrap
 
 # Some parameter values that define a valid harmonic trap potential.
@@ -45,7 +45,7 @@ def test_ho_invalid_params(mass: float, freq: float, num_bosons: int):
 
 # TODO: Maybe this mesh should be a fixture with arbitrary bounds and
 #  number of steps. How?
-_domain_mesh = SpatialMesh(lower_bound=-10, upper_bound=10, num_steps=128)
+_domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_steps=128)
 
 
 @given(
