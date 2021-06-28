@@ -128,7 +128,7 @@ def tests():
 
 @app.command()
 def version():
-    """Run mypy."""
+    """Project version."""
     print(__version__)
 
 
@@ -140,10 +140,8 @@ def format_():
 
 
 @app.command()
-def format_check():
-    """Run all formatting and typechecking tasks."""
-    _run(FORMAT_ARGS)
-    _run(ISORT_ARGS)
+def typecheck():
+    """Run all typechecking tasks."""
     _run(MYPY_ARGS)
 
 
@@ -185,7 +183,7 @@ what_spec = typer.Argument(default=None, help="Cleaning task to perform")
 
 @app.command()
 def clean(task: CleaningTask = what_spec):
-    """Build the documentation."""
+    """Clean any existing documentation."""
     if task is None or task is CleaningTask.DOCS:
         shutil.rmtree(DOCS_BUILD_DIR, ignore_errors=True)
 
