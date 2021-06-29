@@ -46,7 +46,7 @@ def gaussian_state(mesh: Mesh):
     :param mesh: A mesh where the state will be defined.
     :return: A corresponding :class:`State` instance.
     """
-    domain_mesh = mesh.as_array()
+    domain_mesh = mesh.array
     wave_func = np.exp(-(domain_mesh ** 2) / 2) / pi ** 0.25
     return State(mesh=mesh, wave_func=wave_func)
 

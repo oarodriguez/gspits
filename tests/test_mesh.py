@@ -1,5 +1,6 @@
 import numpy as np
 import pytest
+from attr import evolve
 from hypothesis import given
 from hypothesis import strategies as stg
 
@@ -33,12 +34,13 @@ def test_mesh_bounds(
     lower_bound: float, upper_bound: float, num_segments: int
 ):
     """Test routines for creating spatial meshes."""
-    time_mesh = Mesh(lower_bound, upper_bound, num_segments)
-    mesh_as_array = time_mesh.as_array()
-    assert mesh_as_array.min() == time_mesh.lower_bound
-    assert np.allclose(np.diff(mesh_as_array), time_mesh.step_size)
-    mesh_as_array = time_mesh.as_array(endpoint=True)
-    assert np.allclose(np.diff(mesh_as_array), time_mesh.step_size)
+    mesh = Mesh(lower_bound, upper_bound, num_segments)
+    mesh_as_array = mesh.array
+    assert mesh_as_array.min() == mesh.lower_bound
+    assert np.allclose(np.diff(mesh_as_array), mesh.step_size)
+    mesh = evolve(mesh, endpoint=True)
+    mesh_as_array = mesh.array
+    assert np.allclose(np.diff(mesh_as_array), mesh.step_size)
 
 
 # See https://stackoverflow.com/questions/19141432 for details.

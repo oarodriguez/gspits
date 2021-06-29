@@ -19,6 +19,10 @@ class Mesh:
     # Mesh number of segments.
     num_segments: int
 
+    # Indicate whether to consider the upper bound as part of the mesh.
+    # If `False`, the upper bound is excluded.
+    endpoint: bool = False
+
     def __attrs_post_init__(self):
         """Post-initialization procedure."""
         if not self.upper_bound > self.lower_bound:
@@ -31,16 +35,10 @@ class Mesh:
         """Mesh step size."""
         return (self.upper_bound - self.lower_bound) / self.num_segments
 
-    def as_array(self, endpoint: bool = False):
-        """Return an array with the mesh points.
-
-        The upper bound can be excluded from the array if needed.
-
-        :param endpoint: Indicate whether to include the upper bound in
-            the array. If `False`, the upper bound is excluded. The default
-            value is `False`.
-        :return: The NumPy array representing the mesh.
-        """
+    @property
+    def array(self) -> np.ndarray:
+        """Return an array with the mesh points."""
+        endpoint = self.endpoint
         num_segments = self.num_segments + (1 if endpoint else 0)
         return np.linspace(
             self.lower_bound,

@@ -60,7 +60,7 @@ def test_ht(mass: float, freq: float, scat_length: float, num_bosons: int):
     ho = HTHamiltonian(
         mass=mass, freq=freq, scat_length=scat_length, num_bosons=num_bosons
     )
-    domain_array = _domain_mesh.as_array()
+    domain_array = _domain_mesh.array
     ho_pot_func = ho.external_potential
     func_array = ho_pot_func(domain_array)
     assert func_array.shape == domain_array.shape
