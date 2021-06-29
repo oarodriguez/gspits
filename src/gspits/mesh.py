@@ -61,6 +61,10 @@ class TimeMesh:
     # Mesh initial time.
     ini_time: float = 0
 
+    # Indicate whether to include the end time as part of the mesh.
+    # If `False`, the end time is excluded.
+    endpoint: bool = False
+
     def __attrs_post_init__(self):
         """Post-initialization procedure."""
         if not self.num_steps >= 1:
@@ -73,17 +77,14 @@ class TimeMesh:
         """Mesh step size."""
         return self.ini_time + self.num_steps * self.time_step
 
-    def as_array(self, endpoint: bool = False):
-        """Return an array with the mesh points.
-
-        The end time can be excluded from the array if needed.
-
-        :param endpoint: Indicate whether to include the end time in
-            the array. If `False`, the end time is excluded. The default
-            value is `False`.
-        :return: The NumPy array representing the mesh.
-        """
+    @property
+    def array(self):
+        """Return an array with the mesh points."""
+        endpoint = self.endpoint
         num_steps = self.num_steps + (1 if endpoint else 0)
         return np.linspace(
-            self.ini_time, self.finish_time, num=num_steps, endpoint=endpoint
+            self.ini_time,
+            self.finish_time,
+            num=num_steps,
+            endpoint=endpoint,
         )
