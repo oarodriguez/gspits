@@ -21,9 +21,6 @@ class HTHamiltonian(Hamiltonian):
     Represent a Bose gas within a 1D harmonic trap.
     """
 
-    # Particle mass.
-    mass: float
-
     # Trap angular frequency.
     freq: float
 
@@ -35,9 +32,7 @@ class HTHamiltonian(Hamiltonian):
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
-        if np.nan in (self.mass, self.freq, self.scat_length):
-            raise ValueError
-        if not self.mass > 0:
+        if np.nan in (self.freq, self.scat_length):
             raise ValueError
         if not self.freq > 0:
             raise ValueError
@@ -47,20 +42,19 @@ class HTHamiltonian(Hamiltonian):
     @property
     def int_factor(self) -> float:
         """Gas interaction factor."""
-        return 4 * pi * self.num_bosons * self.scat_length
+        return 2 * self.num_bosons * self.scat_length
 
     @property
     def external_potential(self):
         """External potential function."""
         freq = self.freq
-        mass = self.mass
 
         @njit
         def _ht_potential(
             domain_mesh: np.ndarray,
         ) -> np.ndarray:  # pragma: no cover
             """Evaluate the harmonic trap potential in the mesh."""
-            return 0.5 * mass * (freq * domain_mesh) ** 2
+            return 0.5 * (freq * domain_mesh) ** 2
 
         return _ht_potential
 
