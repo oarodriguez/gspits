@@ -63,7 +63,7 @@ class TimeMesh:
 
     # Indicate whether to include the end time as part of the mesh.
     # If `False`, the end time is excluded.
-    endpoint: bool = False
+    endpoint: bool = True
 
     def __attrs_post_init__(self):
         """Post-initialization procedure."""
