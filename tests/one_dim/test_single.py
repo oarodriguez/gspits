@@ -64,3 +64,23 @@ def test_ht(mass: float, freq: float, scat_length: float, num_bosons: int):
     ho_pot_func = ho.external_potential
     func_array = ho_pot_func(domain_array)
     assert func_array.shape == domain_array.shape
+
+
+@given(num_segments=stg.integers(min_value=32, max_value=128))
+def test_ht_gaussian_state(num_segments: int):
+    """Check that Gaussian states are normalized.
+
+    The normalization condition accuracy depends on the number of
+    steps in the mesh. Here, we test for a minimum value of 32 steps
+    and an absolute tolerance for the state norm of 1e-8.
+    NOTE: How can we improve this test?
+    """
+    valid_ho = HTHamiltonian(
+        mass=MASS,
+        freq=1 * FREQ,
+        scat_length=SCAT_LENGTH,
+        num_bosons=NUM_BOSONS,
+    )
+    mesh = Mesh(lower_bound=-10, upper_bound=10, num_segments=num_segments)
+    state = valid_ho.gaussian_state(mesh)
+    assert state.norm == pytest.approx(1, abs=1e-8)

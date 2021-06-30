@@ -5,7 +5,9 @@ from attr import dataclass
 from numba import njit
 from numpy import pi
 
-from .system import Hamiltonian
+from gspits import Mesh
+
+from .system import Hamiltonian, State
 
 __all__ = [
     "HTHamiltonian",
@@ -61,3 +63,16 @@ class HTHamiltonian(Hamiltonian):
             return 0.5 * mass * (freq * domain_mesh) ** 2
 
         return _ht_potential
+
+    def gaussian_state(self, mesh: Mesh):
+        """Build a normalized Gaussian state.
+
+        :param mesh: A mesh where the state will be defined.
+        :return: A corresponding :class:`State` instance.
+        """
+        freq = self.freq
+        domain_mesh = mesh.array
+        wave_func = (freq / pi) ** 0.25 * np.exp(
+            -((freq * domain_mesh) ** 2) / 2
+        )
+        return State(mesh=mesh, wave_func=wave_func)
