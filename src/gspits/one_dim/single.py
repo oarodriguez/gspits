@@ -36,7 +36,7 @@ class HTHamiltonian(Hamiltonian):
             raise ValueError
         if not self.freq > 0:
             raise ValueError
-        if not self.num_bosons > 2:
+        if not self.num_bosons >= 2:
             raise ValueError
 
     @property

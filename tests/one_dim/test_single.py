@@ -44,7 +44,7 @@ _domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_segments=128)
 @given(
     freq=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
     scat_length=stg.floats(min_value=-1e-2, max_value=1e2, allow_nan=False),
-    num_bosons=stg.integers(min_value=3, max_value=1_000_000),
+    num_bosons=stg.integers(min_value=2, max_value=1_000_000),
 )
 @settings(max_examples=3, deadline=None)
 def test_ht(freq: float, scat_length: float, num_bosons: int):
