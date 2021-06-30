@@ -1,4 +1,5 @@
 """Hamiltonians for one-dimensional, single-species Bose gases."""
+from math import sqrt
 
 import numpy as np
 from attr import dataclass
@@ -40,6 +41,11 @@ class HTHamiltonian(Hamiltonian):
             raise ValueError
 
     @property
+    def trap_size(self):
+        """Characteristic size of the harmonic trap."""
+        return sqrt(1 / self.freq)
+
+    @property
     def int_factor(self) -> float:
         """Gas interaction factor."""
         return 2 * self.num_bosons * self.scat_length
@@ -66,7 +72,5 @@ class HTHamiltonian(Hamiltonian):
         """
         freq = self.freq
         domain_mesh = mesh.array
-        wave_func = (freq / pi) ** 0.25 * np.exp(
-            -((freq * domain_mesh) ** 2) / 2
-        )
+        wave_func = (freq / pi) ** 0.25 * np.exp(-freq * domain_mesh ** 2 / 2)
         return State(mesh=mesh, wave_func=wave_func)
