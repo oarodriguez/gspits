@@ -3,7 +3,7 @@
 import logging
 from collections import deque
 from math import pi
-from typing import Iterable
+from typing import Iterable, Iterator
 
 import numpy as np
 from attr import dataclass
@@ -12,7 +12,11 @@ from scipy import fft
 from gspits import Mesh, TimeMesh
 from gspits.one_dim import Hamiltonian, State
 
+# Initialize a logger for this module.
 logger = logging.getLogger(__name__)
+
+
+__all__ = ["BEPSSolver", "BEPSSolverState"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -87,7 +91,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         """Get the wave vectors of the wave function Fourier expansion."""
         return 2 * pi * fft.fftfreq(mesh.num_segments, mesh.step_size)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[BEPSSolverState]:
         """Make this class instances iterable objects."""
         mesh = self.mesh
         int_factor = self.hamiltonian.int_factor
