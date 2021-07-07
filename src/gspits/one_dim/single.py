@@ -25,19 +25,14 @@ class HTHamiltonian(Hamiltonian):
     # Trap angular frequency.
     freq: float
 
-    # Scattering length.
-    scat_length: float
-
-    # Number of particles.
-    num_bosons: int
+    # Pairwise interaction energy.
+    int_energy: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
-        if np.nan in (self.freq, self.scat_length):
+        if np.nan in (self.freq, self.int_energy):
             raise ValueError
         if not self.freq > 0:
-            raise ValueError
-        if not self.num_bosons >= 2:
             raise ValueError
 
     @property
@@ -48,7 +43,7 @@ class HTHamiltonian(Hamiltonian):
     @property
     def int_factor(self) -> float:
         """Gas interaction factor."""
-        return 2 * self.num_bosons * self.scat_length
+        return self.int_energy
 
     @property
     def external_potential(self):
