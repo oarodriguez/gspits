@@ -34,8 +34,8 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9" ]
       fail-fast: false
 
-    runs-on: ${{ $matrix.os }}
-    name: Running tests on ${{ $matrix.os }} / ${{ $matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    name: Running tests on ${{ matrix.os }} / ${{ matrix.python-version }}
 
     steps:
       - name: Check out repository
