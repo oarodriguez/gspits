@@ -13,8 +13,7 @@ from gspits.one_dim.gs_single import BEPSSolver, BEPSSolverState
 
 # Some parameter values that define a valid harmonic trap potential.
 FREQ = 1
-SCAT_LENGTH = 2e-4
-NUM_BOSONS = 10000
+INT_ENERGY = 1
 
 logger = logging.getLogger("gspits.one_dim.gs_single")
 
@@ -24,9 +23,7 @@ logger = logging.getLogger("gspits.one_dim.gs_single")
 def test_beps_solver_ground_state(freq: float):
     """Check that the solver runs."""
     logger.addHandler(RichHandler())
-    hamiltonian = HTHamiltonian(
-        freq=freq, scat_length=SCAT_LENGTH, num_bosons=NUM_BOSONS
-    )
+    hamiltonian = HTHamiltonian(freq=freq, int_energy=INT_ENERGY)
     trap_size = hamiltonian.trap_size
     logger.debug({"trap_size": trap_size})
     mesh = Mesh(
@@ -50,9 +47,7 @@ def test_beps_solver_states():
     """Check how the initial state evolves as the BEPSSolver runs."""
     # logger.setLevel(logging.INFO)
     logger.addHandler(RichHandler())
-    hamiltonian = HTHamiltonian(
-        freq=FREQ, scat_length=SCAT_LENGTH, num_bosons=NUM_BOSONS
-    )
+    hamiltonian = HTHamiltonian(freq=FREQ, int_energy=INT_ENERGY)
     trap_size = hamiltonian.trap_size
     mesh = Mesh(
         lower_bound=-4 * trap_size, upper_bound=4 * trap_size, num_segments=128
@@ -89,9 +84,7 @@ def test_view_beps_solver_ground_state():
     """Shows how the BEPSSolver evolves a initial state to the ground state."""
     # logger.setLevel(logging.INFO)
     logger.addHandler(RichHandler())
-    hamiltonian = HTHamiltonian(
-        freq=FREQ, scat_length=SCAT_LENGTH, num_bosons=NUM_BOSONS
-    )
+    hamiltonian = HTHamiltonian(freq=FREQ, int_energy=INT_ENERGY)
     mesh = Mesh(lower_bound=-8, upper_bound=8, num_segments=256)
     time_mesh = TimeMesh(time_step=2 ** (-4), num_steps=128)
     ini_state = hamiltonian.gaussian_state(mesh)
