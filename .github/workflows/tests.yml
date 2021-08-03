@@ -87,6 +87,6 @@ jobs:
         shell: bash
         run: poetry install
 
-      - name: Run pytest
+      - name: Run tests
         shell: bash
-        run: poetry run python -m pytest
+        run: poetry run python -m tasks tests
