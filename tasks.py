@@ -11,6 +11,7 @@ from subprocess import run
 from typing import List
 
 import click
+from click.exceptions import Exit
 
 PROJECT_DIR = Path(__file__).parent
 SRC_DIR = PROJECT_DIR / "src"
@@ -44,6 +45,114 @@ def _run(command: List[str]):
 
 
 app = click.Group("tasks")
+
+
+def _get_package_info():
+    """Return the package name and version from pyproject.toml."""
+    buffer = run(
+        [POETRY_CMD, "version"], capture_output=True, encoding="utf-8"
+    )
+    buffer_contents = buffer.stdout
+    name: str
+    version_: str
+    # In principle, the package name should have no spaces.
+    name, version_ = buffer_contents.split(" ")
+    return name.strip(), version_.strip()
+
+
+def _install():
+    """Install the current project package."""
+    install_args = [POETRY_CMD, "install"]
+    run(install_args)
+    print("Module installed successfully.")
+    verify_message = (
+        "Check installed version through "
+        """"python -m tasks version" command."""
+    )
+    print(verify_message)
+
+
+@app.command()
+def install():
+    """Install the current project package.
+
+    Do nothing if the package is already installed.
+    """
+    try:
+        import gspits
+
+        name = gspits.metadata["name"]
+        version_ = gspits.__version__
+        print(f"{name} {version_} is already installed.")
+    except ModuleNotFoundError:
+        _install()
+
+
+def _uninstall(package_name: str, yes: bool):
+    """Uninstall the current project package."""
+    pip_args = [PIP_CMD, "uninstall"]
+    if yes:
+        pip_args.append("--yes")
+    pip_args.append(package_name)
+    run(pip_args)
+
+
+@app.command()
+@click.option(
+    "-y",
+    "--yes",
+    is_flag=True,
+    default=False,
+    help="Do not ask for confirmation from pip to uninstall.",
+)
+def uninstall(yes: bool):
+    """Uninstall the current project package.
+
+    Returns an error if the project package is not installed.
+    """
+    try:
+        import gspits
+    except ModuleNotFoundError:
+        name, version_ = _get_package_info()
+        raise click.ClickException(
+            f"The package '{name} {version_}' has not been installed."
+        )
+    else:
+        name = gspits.metadata["name"]
+        version_ = gspits.__version__
+        _uninstall(name, yes)
+        if yes:
+            print(f"Package '{name} {version_}' uninstalled successfully.")
+
+
+@app.command()
+@click.option(
+    "-y",
+    "--yes",
+    is_flag=True,
+    default=False,
+    help="Do not ask for confirmation from pip to uninstall and then upgrade.",
+)
+def upgrade(yes: bool):
+    """Upgrade the project package installation."""
+    try:
+        import gspits
+    except ModuleNotFoundError:
+        name, new_version = _get_package_info()
+        raise click.ClickException(
+            f"The package '{name} {new_version}' has not been installed."
+        )
+    else:
+        name, new_version = _get_package_info()
+        old_version = gspits.__version__
+        if old_version == new_version:
+            print("The installed project package is the latest.")
+            raise Exit()
+        _uninstall(name, yes)
+        if yes:
+            print(f"Package '{name} {old_version}' uninstalled successfully.")
+            _install()
+            print(f"Package '{name} {new_version}' installed successfully.")
 
 
 @app.command()
