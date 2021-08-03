@@ -10,9 +10,9 @@ import importlib.metadata as importlib_metadata
 
 from .mesh import Mesh, TimeMesh
 
-_metadata = importlib_metadata.metadata("gspits")
+metadata = importlib_metadata.metadata("gspits")
 
 # Export package information.
-__version__ = _metadata["version"]
+__version__ = metadata["version"]
 
-__all__ = ["__version__", "Mesh", "TimeMesh"]
+__all__ = ["Mesh", "TimeMesh", "__version__", "metadata"]
