@@ -57,7 +57,7 @@ sphinx-rtd-theme = ">=0.5.2"
 hypothesis = ">=6.10.1"
 coverage = ">=5.5"
 pytest-cov = ">=2.12.0"
-pre-commit = "^2.13.0"
+pre-commit = ">=2.13.0"
 
 [tool.poetry.extras]
 jupyter = ["matplotlib", "jupyter", "jupyterlab", "jupyterlab-code-formatter", "jupytext"]
