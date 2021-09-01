@@ -60,16 +60,11 @@ def _get_package_info():
     return name.strip(), version_.strip()
 
 
-def _install():
-    """Install the current project package."""
-    install_args = [POETRY_CMD, "install"]
-    run(install_args)
-    print("Module installed successfully.")
-    verify_message = (
-        "Check installed version through "
-        """"python -m tasks version" command."""
-    )
-    print(verify_message)
+def _get_installed_package_info():
+    """Return the name and version of the installed project package."""
+    import gspits
+
+    return gspits.metadata["name"], gspits.__version__
 
 
 @app.command()
@@ -79,80 +74,63 @@ def install():
     Do nothing if the package is already installed.
     """
     try:
-        import gspits
-
-        name = gspits.metadata["name"]
-        version_ = gspits.__version__
-        print(f"{name} {version_} is already installed.")
+        name, version_ = _get_installed_package_info()
     except ModuleNotFoundError:
-        _install()
-
-
-def _uninstall(package_name: str, yes: bool):
-    """Uninstall the current project package."""
-    pip_args = [PIP_CMD, "uninstall"]
-    if yes:
-        pip_args.append("--yes")
-    pip_args.append(package_name)
-    run(pip_args)
+        install_args = [POETRY_CMD, "install"]
+        run(install_args)
+        print("Module installed successfully.")
+        verify_message = (
+            "Check installed version through "
+            """"python -m tasks version" command."""
+        )
+        print(verify_message)
+    else:
+        print(f"{name} {version_} is already installed.")
 
 
 @app.command()
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    default=False,
-    help="Do not ask for confirmation from pip to uninstall.",
-)
-def uninstall(yes: bool):
+def uninstall():
     """Uninstall the current project package.
 
     Returns an error if the project package is not installed.
     """
     try:
-        import gspits
+        name, version_ = _get_installed_package_info()
+        pip_args = [PIP_CMD, "uninstall", "--yes", name]
+        run(pip_args)
+        print(f"Package '{name} {version_}' uninstalled successfully.")
     except ModuleNotFoundError:
         name, version_ = _get_package_info()
         raise click.ClickException(
             f"The package '{name} {version_}' has not been installed."
         )
-    else:
-        name = gspits.metadata["name"]
-        version_ = gspits.__version__
-        _uninstall(name, yes)
-        if yes:
-            print(f"Package '{name} {version_}' uninstalled successfully.")
 
 
 @app.command()
-@click.option(
-    "-y",
-    "--yes",
-    is_flag=True,
-    default=False,
-    help="Do not ask for confirmation from pip to uninstall and then upgrade.",
-)
-def upgrade(yes: bool):
+def upgrade():
     """Upgrade the project package installation."""
+    name, new_version = _get_package_info()
     try:
-        import gspits
-    except ModuleNotFoundError:
-        name, new_version = _get_package_info()
-        raise click.ClickException(
-            f"The package '{name} {new_version}' has not been installed."
-        )
-    else:
-        name, new_version = _get_package_info()
-        old_version = gspits.__version__
+        name, old_version = _get_installed_package_info()
         if old_version == new_version:
             print("The installed project package is the latest.")
             raise Exit()
-        _uninstall(name, yes)
-        if yes:
-            print(f"Package '{name} {old_version}' uninstalled successfully.")
-            _install()
-            print(f"Package '{name} {new_version}' installed successfully.")
+        pip_args = [PIP_CMD, "uninstall", "--yes", name]
+        run(pip_args)
+        print(f"Package '{name} {old_version}' uninstalled successfully.")
+    except ModuleNotFoundError:
+        raise click.ClickException(
+            f"The package '{name} {new_version}' has not been installed."
+        )
+
+    install_args = [POETRY_CMD, "install"]
+    run(install_args)
+    print("Package upgraded successfully.")
+    verify_message = (
+        "Check installed version through "
+        """"python -m tasks version" command."""
+    )
+    print(verify_message)
 
 
 @app.command()
