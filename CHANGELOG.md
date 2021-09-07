@@ -6,6 +6,12 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add new 1D Hamiltonians:
+  - `OLHTHamiltonian`. Represents a Bose gas within an optical lattice
+    superimposed with a harmonic trap.
+  - `MRHamiltonian`. Represents a Bose gas within a multi-rod potential
+    composed of multiple consecutive wells and barriers.
+  - Implement `plane_wave_state` routine to build normalized plane wave states.
 - Add task `jupyter-lab`.
 
 ### Changed
