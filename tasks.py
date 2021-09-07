@@ -4,6 +4,7 @@ Collection of development tasks.
 Usage:
     python -m tasks TASK-NAME
 """
+import os
 import shutil
 from enum import Enum, unique
 from pathlib import Path
@@ -12,18 +13,29 @@ from typing import List
 
 import click
 from click.exceptions import Exit
+from dotenv import dotenv_values
 
+# The default name of the file that `python-dotenv` will parse.
+DEFAULT_DOTENV_FILE = ".env"
+
+# Indicate to `python-dotenv` which file to load instead of the default.
+DOTENV_FILE_ENV_VAR_NAME = "DOTENV_FILE"
+
+# Constants.
 PROJECT_DIR = Path(__file__).parent
 SRC_DIR = PROJECT_DIR / "src"
 TESTS_DIR = PROJECT_DIR / "tests"
 DOCS_DIR = PROJECT_DIR / "docs"
 DOCS_SOURCE_DIR = DOCS_DIR / "source"
 DOCS_BUILD_DIR = DOCS_DIR / "build"
+DATA_DIR = PROJECT_DIR / "data"
 NOTEBOOKS_DIR = PROJECT_DIR / "notebooks"
+SCRIPTS_DIR = PROJECT_DIR / "scripts"
 TASKS_FILE = PROJECT_DIR / "tasks.py"
 
 PYTHON_CMD = "python"
 POETRY_CMD = shutil.which("poetry")
+JUPYTER_CMD = shutil.which("jupyter")
 PIP_CMD = "pip"
 ISORT_CMD = "isort"
 BLACK_CMD = "black"
@@ -285,6 +297,36 @@ def clean(task: str):
     task_ = None if task is None else CleaningTask[task]
     if task_ is None or task_ is CleaningTask.DOCS:
         shutil.rmtree(DOCS_BUILD_DIR, ignore_errors=True)
+
+
+def _get_environ():
+    """Get environment variables from file.
+
+    The returned dictionary include the variables loaded by `python-dotenv`.
+    The system environment variables are not overridden.
+    """
+    environ = {}
+    dotenv_file = os.getenv(DOTENV_FILE_ENV_VAR_NAME, DEFAULT_DOTENV_FILE)
+    # TODO: Allow override system environment variables?
+    environ.update(dotenv_values(dotenv_file), **os.environ)
+    return environ
+
+
+@app.command()
+def jupyter_lab():
+    """Execute a jupyter lab server instance in the current directory."""
+    environ = _get_environ()
+    environ["DATA_DIR"] = str(DATA_DIR)
+    environ["NOTEBOOKS_DIR"] = str(NOTEBOOKS_DIR)
+    environ["SCRIPTS_DIR"] = str(SCRIPTS_DIR)
+    if JUPYTER_CMD is None:
+        raise click.ClickException("'jupyter' library is not installed")
+    jupyter_lab_args = [
+        JUPYTER_CMD,
+        "lab",
+        "--no-browser",
+    ]
+    run(jupyter_lab_args, env=environ)
 
 
 if __name__ == "__main__":

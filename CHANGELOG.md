@@ -6,11 +6,11 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
-TODO.
+- Add task `jupyter-lab`.
 
 ### Changed
 
-TODO.
+- Update dependencies and `poetry.lock` file.
 
 ### Deprecated
 
