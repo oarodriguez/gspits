@@ -15,7 +15,6 @@ from gspits.one_dim import Hamiltonian, State
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
 
-
 __all__ = ["BEPSSolver", "BEPSSolverState"]
 
 
@@ -42,6 +41,12 @@ class BEPSSolverState:
 
     # Chemical potential
     chemical_potential: float
+
+    # Kinetic energy.
+    kinetic_energy: float
+
+    # Interaction energy.
+    int_energy: float
 
     @property
     def state(self):
@@ -96,8 +101,8 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         mesh = self.mesh
         int_factor = self.hamiltonian.int_factor
         domain_mesh = mesh.array
-        domain_extent = mesh.upper_bound - mesh.lower_bound
         step_size = mesh.step_size
+        num_segments = mesh.num_segments
         wave_vectors = self.wave_vectors(mesh)
         time_step = self.time_mesh.time_step
         num_time_steps = self.time_mesh.num_steps
@@ -117,24 +122,33 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             wave_func_tdx_abs_quartic = wave_func_tdx_abs_sqr ** 2
             full_pot_array = ext_pot_array + int_factor * wave_func_tdx_abs_sqr
             alpha = 0.5 * (full_pot_array.min() + full_pot_array.max())
-            int_energy_array = (
-                ext_pot_array * wave_func_tdx_abs_sqr
-                + 0.5 * int_factor * wave_func_tdx_abs_quartic
-            )
             wave_func_tdx_fft = fft.fft(wave_func_tdx)
-            energy = (domain_extent / 4) * np.sum(
-                wave_vectors ** 2 * np.abs(wave_func_tdx_fft) ** 2
-            ) + step_size * np.sum(int_energy_array)
-            chemical_pot = energy + 0.5 * int_factor * step_size * np.sum(
-                wave_func_tdx_abs_quartic
+            kinetic_energy = (
+                0.5
+                * (step_size / num_segments)
+                * np.sum(wave_vectors ** 2 * np.abs(wave_func_tdx_fft) ** 2)
             )
+            int_energy = (
+                0.5
+                * int_factor
+                * step_size
+                * np.sum(wave_func_tdx_abs_quartic)
+            )
+            potential_energy = (
+                step_size * np.sum(ext_pot_array * wave_func_tdx_abs_sqr)
+                + int_energy
+            )
+            energy = kinetic_energy + potential_energy
+            chemical_pot = energy + int_energy
             yield BEPSSolverState(
                 mesh=self.mesh,
                 wave_func=wave_func_tdx,
-                wave_func_fft=wave_func_tdx_fft,
                 wave_vectors=wave_vectors,
+                wave_func_fft=wave_func_tdx_fft,
                 energy=energy,
                 chemical_potential=chemical_pot,
+                kinetic_energy=kinetic_energy,
+                int_energy=int_energy,
             )
             # If we have reached the maximum number of steps, then do not
             # make any other calculations. Just try to go to the next loop
