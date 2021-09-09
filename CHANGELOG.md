@@ -16,6 +16,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
+- `BESPSolver` instances must use the initial state `mesh` attribute. With this
+  change, the solver only has one obvious mesh to calculate the ground state.
 - Update dependencies and `poetry.lock` file.
 
 ### Deprecated

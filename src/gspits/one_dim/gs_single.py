@@ -63,14 +63,11 @@ class BEPSSolver(Iterable[BEPSSolverState]):
     # The system Hamiltonian.
     hamiltonian: Hamiltonian
 
-    # The spatial mesh.
-    mesh: Mesh
+    # State used for starting the procedure.
+    ini_state: State
 
     # Temporal mesh used for the imaginary-time evolution.
     time_mesh: TimeMesh
-
-    # State used for starting the procedure.
-    ini_state: State
 
     # Absolute tolerance for the convergence test at each time step.
     abs_tol: float = 1e-4
@@ -98,7 +95,8 @@ class BEPSSolver(Iterable[BEPSSolverState]):
 
     def __iter__(self) -> Iterator[BEPSSolverState]:
         """Make this class instances iterable objects."""
-        mesh = self.mesh
+        ini_state = self.ini_state
+        mesh = ini_state.mesh
         int_factor = self.hamiltonian.int_factor
         domain_mesh = mesh.array
         step_size = mesh.step_size
@@ -112,7 +110,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         ext_potential = self.hamiltonian.external_potential
         ext_pot_array = ext_potential(domain_mesh)
         # Imaginary time evolution.
-        wave_func_tdx = self.ini_state.wave_func
+        wave_func_tdx = ini_state.wave_func
         wave_func_tdx_diff = np.nan
         break_evolve = False
         # Logging information.
@@ -141,7 +139,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             energy = kinetic_energy + potential_energy
             chemical_pot = energy + int_energy
             yield BEPSSolverState(
-                mesh=self.mesh,
+                mesh=mesh,
                 wave_func=wave_func_tdx,
                 wave_vectors=wave_vectors,
                 wave_func_fft=wave_func_tdx_fft,

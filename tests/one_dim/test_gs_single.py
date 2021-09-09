@@ -31,9 +31,8 @@ def test_beps_solver_ground_state(freq: float):
     time_mesh = TimeMesh(time_step=2 ** (-4), num_steps=128)
     beps_solver = BEPSSolver(
         hamiltonian=hamiltonian,
-        mesh=mesh,
-        time_mesh=time_mesh,
         ini_state=ini_state,
+        time_mesh=time_mesh,
         abs_tol=1e-8,
     )
     ground_state = beps_solver.ground_state
