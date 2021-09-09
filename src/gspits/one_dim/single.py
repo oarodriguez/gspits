@@ -38,11 +38,11 @@ class HTHamiltonian(Hamiltonian):
     freq: float
 
     # Pairwise interaction energy.
-    int_energy: float
+    int_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
-        if np.nan in (self.freq, self.int_energy):
+        if np.nan in (self.freq, self.int_strength):
             raise ValueError
         if not self.freq > 0:
             raise ValueError
@@ -55,7 +55,7 @@ class HTHamiltonian(Hamiltonian):
     @property
     def int_factor(self) -> float:
         """Gas interaction factor."""
-        return self.int_energy
+        return self.int_strength
 
     @property
     def external_potential(self):
@@ -105,7 +105,7 @@ class OLHTHamiltonian(HTHamiltonian):
     wavelength: float
 
     # Pairwise interaction energy.
-    int_energy: float
+    int_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
@@ -113,7 +113,7 @@ class OLHTHamiltonian(HTHamiltonian):
             self.lattice_depth,
             self.freq,
             self.wavelength,
-            self.int_energy,
+            self.int_strength,
         ):
             raise ValueError
         if not self.freq > 0:
@@ -158,7 +158,7 @@ class MRHamiltonian(Hamiltonian):
     barrier_width: float
 
     # Pairwise interaction energy.
-    int_energy: float
+    int_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
@@ -166,7 +166,7 @@ class MRHamiltonian(Hamiltonian):
             self.lattice_depth,
             self.barrier_width,
             self.lattice_period,
-            self.int_energy,
+            self.int_strength,
         ):
             raise ValueError
         if not self.barrier_width > 0:
@@ -184,7 +184,7 @@ class MRHamiltonian(Hamiltonian):
     @property
     def int_factor(self) -> float:
         """Gas interaction factor."""
-        return self.int_energy
+        return self.int_strength
 
     @property
     def external_potential(self):
@@ -214,5 +214,4 @@ class MRHamiltonian(Hamiltonian):
     @staticmethod
     def plane_wave_state(mesh: Mesh):
         """Build a normalized plane wave."""
-        # We define the plane wave in the same way.
-        return OLHTHamiltonian.plane_wave_state(mesh)
+        return plane_wave_state(mesh)

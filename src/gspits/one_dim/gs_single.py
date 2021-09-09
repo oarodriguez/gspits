@@ -162,12 +162,12 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             wave_func_idx = wave_func_tdx
             wave_func_idx_diff = np.nan
             for idx in range(max_time_step_iters + 1):
-                stabilized_term = (alpha - full_pot_array) * wave_func_idx
+                stabilization_term = (alpha - full_pot_array) * wave_func_idx
                 next_wave_func_idx_fft = (
                     2
                     * (
                         wave_func_tdx_fft
-                        + time_step * fft.fft(stabilized_term)
+                        + time_step * fft.fft(stabilization_term)
                     )
                     / (2 + time_step * (2 * alpha + wave_vectors ** 2))
                 )

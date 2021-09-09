@@ -1,3 +1,4 @@
+"""Validate the routines in `gspits.one_dim.gs_single` module."""
 import logging
 
 import pytest
@@ -11,7 +12,7 @@ from gspits.one_dim.gs_single import BEPSSolver
 
 # Some parameter values that define a valid harmonic trap potential.
 FREQ = 1
-INT_ENERGY = 1
+INT_STRENGTH = 1
 
 logger = logging.getLogger("gspits.one_dim.gs_single")
 
@@ -21,7 +22,7 @@ logger = logging.getLogger("gspits.one_dim.gs_single")
 def test_beps_solver_ground_state(freq: float):
     """Check that the solver runs."""
     logger.addHandler(RichHandler())
-    hamiltonian = HTHamiltonian(freq=freq, int_energy=INT_ENERGY)
+    hamiltonian = HTHamiltonian(freq=freq, int_strength=INT_STRENGTH)
     trap_size = hamiltonian.trap_size
     mesh = Mesh(
         lower_bound=-8 * trap_size, upper_bound=8 * trap_size, num_segments=256

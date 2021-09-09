@@ -78,7 +78,7 @@ class TimeMesh:
         return self.ini_time + self.num_steps * self.time_step
 
     @property
-    def array(self):
+    def array(self) -> np.ndarray:
         """Return an array with the mesh points."""
         endpoint = self.endpoint
         num_steps = self.num_steps + (1 if endpoint else 0)
