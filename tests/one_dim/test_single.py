@@ -17,7 +17,7 @@ from gspits.one_dim import (
 
 # Some parameter values that define a valid harmonic trap potential.
 FREQ = 1
-INT_STRENGTH = 1
+INTERACTION_STRENGTH = 1
 
 
 @given(
@@ -25,7 +25,9 @@ INT_STRENGTH = 1
 )
 def test_ht_invalid_params(freq: float):
     """Check that invalid parameters are correctly managed."""
-    valid_ho = HTHamiltonian(freq=FREQ, int_strength=INT_STRENGTH)
+    valid_ho = HTHamiltonian(
+        freq=FREQ, interaction_strength=INTERACTION_STRENGTH
+    )
     with pytest.raises(ValueError):
         # Check invalid frequencies.
         evolve(valid_ho, freq=freq)
@@ -34,7 +36,7 @@ def test_ht_invalid_params(freq: float):
     with pytest.raises(ValueError):
         evolve(valid_ho, freq=np.nan)
     with pytest.raises(ValueError):
-        evolve(valid_ho, int_strength=np.nan)
+        evolve(valid_ho, interaction_strength=np.nan)
 
 
 # TODO: Maybe this mesh should be a fixture with arbitrary bounds and
@@ -44,12 +46,14 @@ _domain_mesh = Mesh(lower_bound=-10, upper_bound=10, num_segments=128)
 
 @given(
     freq=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
-    int_strength=stg.floats(min_value=-1e-2, max_value=1e2, allow_nan=False),
+    interaction_strength=stg.floats(
+        min_value=-1e-2, max_value=1e2, allow_nan=False
+    ),
 )
 @settings(max_examples=3, deadline=None)
-def test_ht(freq: float, int_strength: float):
+def test_ht(freq: float, interaction_strength: float):
     """Check that the core function works."""
-    ho = HTHamiltonian(freq=freq, int_strength=int_strength)
+    ho = HTHamiltonian(freq=freq, interaction_strength=interaction_strength)
     domain_array = _domain_mesh.array
     ho_pot_func = ho.external_potential
     func_array = ho_pot_func(domain_array)
@@ -70,7 +74,7 @@ def test_ht_gaussian_state(freq: float, num_segments: int):
     """
     valid_ho = HTHamiltonian(
         freq=freq,
-        int_strength=INT_STRENGTH,
+        interaction_strength=INTERACTION_STRENGTH,
     )
     trap_size = valid_ho.trap_size
     mesh = Mesh(
@@ -97,7 +101,7 @@ def test_olht_invalid_params(freq: float, wavelength: float):
         lattice_depth=LATTICE_DEPTH,
         freq=FREQ,
         wavelength=WAVELENGTH,
-        int_strength=INT_STRENGTH,
+        interaction_strength=INTERACTION_STRENGTH,
     )
     with pytest.raises(ValueError):
         # Check invalid frequencies.
@@ -105,7 +109,7 @@ def test_olht_invalid_params(freq: float, wavelength: float):
     with pytest.raises(ValueError):
         # Check invalid wavelengths.
         evolve(valid_hamiltonian, wavelength=wavelength)
-    # NOTE: The lattice_depth and int_strength can take, in principle,
+    # NOTE: The lattice_depth and interaction_strength can take, in principle,
     #  any real value.
     # Raise an error with NaNs.
     with pytest.raises(ValueError):
@@ -115,25 +119,30 @@ def test_olht_invalid_params(freq: float, wavelength: float):
     with pytest.raises(ValueError):
         evolve(valid_hamiltonian, wavelength=np.nan)
     with pytest.raises(ValueError):
-        evolve(valid_hamiltonian, int_strength=np.nan)
+        evolve(valid_hamiltonian, interaction_strength=np.nan)
 
 
 @given(
     lattice_depth=stg.floats(min_value=-1e2, max_value=1e2, allow_nan=False),
     freq=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
     wavelength=stg.floats(min_value=1e-2, max_value=1e2, allow_nan=False),
-    int_strength=stg.floats(min_value=-1e-2, max_value=1e2, allow_nan=False),
+    interaction_strength=stg.floats(
+        min_value=-1e-2, max_value=1e2, allow_nan=False
+    ),
 )
 @settings(max_examples=3, deadline=None)
 def test_olht(
-    lattice_depth: float, freq: float, wavelength: float, int_strength: float
+    lattice_depth: float,
+    freq: float,
+    wavelength: float,
+    interaction_strength: float,
 ):
     """Check the Hamiltonian core functionality works correctly."""
     hamiltonian = OLHTHamiltonian(
         lattice_depth=lattice_depth,
         freq=freq,
         wavelength=wavelength,
-        int_strength=int_strength,
+        interaction_strength=interaction_strength,
     )
     domain_array = _domain_mesh.array
     ho_pot_func = hamiltonian.external_potential
@@ -145,7 +154,7 @@ def test_olht(
 LATTICE_DEPTH = 1
 LATTICE_PERIOD = 1
 BARRIER_WIDTH = 1 / 2
-INT_STRENGTH = 1
+INTERACTION_STRENGTH = 1
 
 lattice_period_stg = stg.floats(
     min_value=0, max_value=1e2, allow_infinity=False, allow_nan=False
@@ -188,7 +197,7 @@ def test_mr_invalid_params(params: _MRParams):
         lattice_depth=LATTICE_DEPTH,
         lattice_period=LATTICE_PERIOD,
         barrier_width=BARRIER_WIDTH,
-        int_strength=INT_STRENGTH,
+        interaction_strength=INTERACTION_STRENGTH,
     )
     with pytest.raises(ValueError):
         # Check invalid lattice periods and barrier widths.
@@ -197,7 +206,7 @@ def test_mr_invalid_params(params: _MRParams):
             lattice_period=params.lattice_period,
             barrier_width=params.barrier_width,
         )
-    # NOTE: The lattice_depth and int_strength can take, in principle,
+    # NOTE: The lattice_depth and interaction_strength can take, in principle,
     #  any real value.
     # Raise an error with NaNs.
     with pytest.raises(ValueError):
@@ -207,7 +216,7 @@ def test_mr_invalid_params(params: _MRParams):
     with pytest.raises(ValueError):
         evolve(valid_hamiltonian, barrier_width=np.nan)
     with pytest.raises(ValueError):
-        evolve(valid_hamiltonian, int_strength=np.nan)
+        evolve(valid_hamiltonian, interaction_strength=np.nan)
 
 
 def _valid_params(params: _MRParams):
@@ -239,26 +248,28 @@ valid_params_stg = (
 @given(
     lattice_depth=stg.floats(min_value=-1e2, max_value=1e2, allow_nan=False),
     params=valid_params_stg,
-    int_strength=stg.floats(min_value=-1e-2, max_value=1e2, allow_nan=False),
+    interaction_strength=stg.floats(
+        min_value=-1e-2, max_value=1e2, allow_nan=False
+    ),
 )
 @settings(max_examples=3, deadline=None)
 def test_mr(
     lattice_depth: float,
     params: _MRParams,
-    int_strength: float,
+    interaction_strength: float,
 ):
     """Check the Hamiltonian core functionality works correctly."""
     hamiltonian = MRHamiltonian(
         lattice_depth=lattice_depth,
         lattice_period=params.lattice_period,
         barrier_width=params.barrier_width,
-        int_strength=int_strength,
+        interaction_strength=interaction_strength,
     )
     # Some natural but important assertions about the Hamiltonian attributes.
     assert (
         hamiltonian.well_width + hamiltonian.barrier_width
     ) == pytest.approx(hamiltonian.lattice_period, 1e-8)
-    assert hamiltonian.int_factor == int_strength
+    assert hamiltonian.interaction_factor == interaction_strength
     # Check that the external potential function works correctly.
     domain_array = _domain_mesh.array
     mr_pot_func = hamiltonian.external_potential

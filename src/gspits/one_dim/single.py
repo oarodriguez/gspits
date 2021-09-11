@@ -38,11 +38,11 @@ class HTHamiltonian(Hamiltonian):
     freq: float
 
     # Pairwise interaction energy.
-    int_strength: float
+    interaction_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
-        if np.nan in (self.freq, self.int_strength):
+        if np.nan in (self.freq, self.interaction_strength):
             raise ValueError
         if not self.freq > 0:
             raise ValueError
@@ -53,9 +53,9 @@ class HTHamiltonian(Hamiltonian):
         return sqrt(1 / self.freq)
 
     @property
-    def int_factor(self) -> float:
+    def interaction_factor(self) -> float:
         """Gas interaction factor."""
-        return self.int_strength
+        return self.interaction_strength
 
     @property
     def external_potential(self):
@@ -105,7 +105,7 @@ class OLHTHamiltonian(HTHamiltonian):
     wavelength: float
 
     # Pairwise interaction energy.
-    int_strength: float
+    interaction_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
@@ -113,7 +113,7 @@ class OLHTHamiltonian(HTHamiltonian):
             self.lattice_depth,
             self.freq,
             self.wavelength,
-            self.int_strength,
+            self.interaction_strength,
         ):
             raise ValueError
         if not self.freq > 0:
@@ -158,7 +158,7 @@ class MRHamiltonian(Hamiltonian):
     barrier_width: float
 
     # Pairwise interaction energy.
-    int_strength: float
+    interaction_strength: float
 
     def __attrs_post_init__(self):
         """Post-initialization checks."""
@@ -166,7 +166,7 @@ class MRHamiltonian(Hamiltonian):
             self.lattice_depth,
             self.barrier_width,
             self.lattice_period,
-            self.int_strength,
+            self.interaction_strength,
         ):
             raise ValueError
         if not self.barrier_width > 0:
@@ -182,9 +182,9 @@ class MRHamiltonian(Hamiltonian):
         return self.lattice_period - self.barrier_width
 
     @property
-    def int_factor(self) -> float:
+    def interaction_factor(self) -> float:
         """Gas interaction factor."""
-        return self.int_strength
+        return self.interaction_strength
 
     @property
     def external_potential(self):

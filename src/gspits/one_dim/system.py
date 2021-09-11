@@ -64,7 +64,7 @@ class Hamiltonian(Protocol):
 
     @property
     @abstractmethod
-    def int_factor(self) -> float:
+    def interaction_factor(self) -> float:
         """Gas interaction factor."""
         raise NotImplementedError
 

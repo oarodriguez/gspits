@@ -46,7 +46,7 @@ class BEPSSolverState:
     kinetic_energy: float
 
     # Interaction energy.
-    int_energy: float
+    interaction_energy: float
 
     @property
     def state(self):
@@ -97,7 +97,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         """Make this class instances iterable objects."""
         ini_state = self.ini_state
         mesh = ini_state.mesh
-        int_factor = self.hamiltonian.int_factor
+        interaction_factor = self.hamiltonian.interaction_factor
         domain_mesh = mesh.array
         step_size = mesh.step_size
         num_segments = mesh.num_segments
@@ -118,7 +118,9 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         for step_tdx in range(num_time_steps + 1):
             wave_func_tdx_abs_sqr = np.abs(wave_func_tdx) ** 2
             wave_func_tdx_abs_quartic = wave_func_tdx_abs_sqr ** 2
-            full_pot_array = ext_pot_array + int_factor * wave_func_tdx_abs_sqr
+            full_pot_array = (
+                ext_pot_array + interaction_factor * wave_func_tdx_abs_sqr
+            )
             alpha = 0.5 * (full_pot_array.min() + full_pot_array.max())
             wave_func_tdx_fft = fft.fft(wave_func_tdx)
             kinetic_energy = (
@@ -126,18 +128,18 @@ class BEPSSolver(Iterable[BEPSSolverState]):
                 * (step_size / num_segments)
                 * np.sum(wave_vectors ** 2 * np.abs(wave_func_tdx_fft) ** 2)
             )
-            int_energy = (
+            interaction_energy = (
                 0.5
-                * int_factor
+                * interaction_factor
                 * step_size
                 * np.sum(wave_func_tdx_abs_quartic)
             )
             potential_energy = (
                 step_size * np.sum(ext_pot_array * wave_func_tdx_abs_sqr)
-                + int_energy
+                + interaction_energy
             )
             energy = kinetic_energy + potential_energy
-            chemical_pot = energy + int_energy
+            chemical_pot = energy + interaction_energy
             yield BEPSSolverState(
                 mesh=mesh,
                 wave_func=wave_func_tdx,
@@ -146,7 +148,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
                 energy=energy,
                 chemical_potential=chemical_pot,
                 kinetic_energy=kinetic_energy,
-                int_energy=int_energy,
+                interaction_energy=interaction_energy,
             )
             # If we have reached the maximum number of steps, then do not
             # make any other calculations. Just try to go to the next loop

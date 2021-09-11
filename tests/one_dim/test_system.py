@@ -1,3 +1,5 @@
+"""Validate the functionality of the `gspits.one_dim.system` module."""
+
 import numpy as np
 from attr import dataclass
 from numba import njit
@@ -19,7 +21,7 @@ class _TestHamiltonian:
     __slots__ = ()
 
     @property
-    def int_factor(self):
+    def interaction_factor(self):
         """Bose gas interaction factor."""
         return 4 * pi * 1e-2
 
