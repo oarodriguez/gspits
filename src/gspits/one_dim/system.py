@@ -9,6 +9,7 @@ from attr import dataclass
 from gspits import Mesh
 
 __all__ = [
+    "BlochState",
     "ExternalPotential",
     "Hamiltonian",
     "State",
@@ -98,3 +99,64 @@ class State:
         wave_func = self.wave_func
         dx = self.mesh.step_size
         return dx * np.sum(np.abs(wave_func) ** 2)
+
+
+@dataclass(frozen=True, slots=True)
+class BlochState(State):
+    r"""Represent a Bloch state.
+
+    A Bloch state :math:`\psi(z)` with  wave vector :math:`k` is a wave
+    function of the form
+
+    :math:`\psi(z) = \phi(z) e^{i k z},`
+
+    where :math:`\phi(z)` is a periodic function with the same periodicity
+    :math:`L` as the Hamiltonian, i.e., :math:`\phi(z + L) = \phi(z)`.
+    """
+
+    __slots__ = ()
+
+    # The domain mesh.
+    mesh: Mesh
+
+    # Array with the wave function values at the mesh points.
+    wave_func: np.ndarray
+
+    # Lattice wave vector of this state.
+    wave_vector: float
+
+    @property
+    def periodic_component(self) -> State:
+        r"""Return the periodic component of this Bloch state.
+
+        The periodic component of a Bloch state :math:`\psi(z)` with
+        wave vector :math:`k` is the periodic function :math:`\phi(z)`
+        that fulfills the relation
+
+        :math:`\psi(z) = \phi(z) e^{i k z}.`
+
+        Therefore, :math:`\phi(z) = \psi(z) e^{-i k z}`.
+        """
+        wave_func = self.wave_func * np.exp(
+            -1j * self.wave_vector * self.mesh.array
+        )
+        return State(mesh=self.mesh, wave_func=wave_func)
+
+    @classmethod
+    def plane_wave(cls, mesh: Mesh, wave_vector: float):
+        r"""Build a normalized plane wave.
+
+        A plane wave with wave vector :math:`k` is a special case of Bloch
+        state whose periodic component is the constant function
+
+        :math:`\phi(z) = \frac{1}{\sqrt{L}},`
+
+        where :math:`L` is the domain size where the function is defined,
+        so :math:`\psi(z) = \phi(z) e^{i k z}` is normalized.
+        """
+        mesh_array = mesh.array
+        domain_extent = mesh_array.max() - mesh_array.min()
+        wave_func = np.exp(1j * wave_vector * mesh_array) / np.sqrt(
+            domain_extent
+        )
+        return cls(mesh=mesh, wave_func=wave_func, wave_vector=wave_vector)

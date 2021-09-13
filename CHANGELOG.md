@@ -6,6 +6,7 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add class `BlochState` to model Bloch states of periodic Hamiltonians.
 - Add new 1D Hamiltonians:
   - `OLHTHamiltonian`. Represents a Bose gas within an optical lattice
     superimposed with a harmonic trap.

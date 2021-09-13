@@ -7,6 +7,7 @@ from .single import (
     plane_wave_state,
 )
 from .system import (
+    BlochState,
     ExternalPotential,
     Hamiltonian,
     State,
@@ -15,6 +16,7 @@ from .system import (
 )
 
 __all__ = [
+    "BlochState",
     "ExternalPotential",
     "HTHamiltonian",
     "Hamiltonian",
