@@ -155,7 +155,7 @@ class BlochState(State):
         so :math:`\psi(z) = \phi(z) e^{i k z}` is normalized.
         """
         mesh_array = mesh.array
-        domain_extent = mesh_array.max() - mesh_array.min()
+        domain_extent = mesh.upper_bound - mesh.lower_bound
         wave_func = np.exp(1j * wave_vector * mesh_array) / np.sqrt(
             domain_extent
         )

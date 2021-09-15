@@ -64,7 +64,7 @@ def test_bloch_state(
     )
     bloch_state = BlochState.plane_wave(mesh, wave_vector)
     # A plane wave is normalized, and its norm must be approximately one.
-    assert bloch_state.norm == pytest.approx(1, abs=mesh.step_size)
+    assert bloch_state.norm == pytest.approx(1, abs=1e-8)
     assert bloch_state.norm == pytest.approx(
         bloch_state.periodic_component.norm, abs=1e-8
     )
