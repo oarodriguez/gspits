@@ -85,13 +85,11 @@ class BEPSSolver(Iterable[BEPSSolverState]):
     max_time_step_iters: int = 128
 
     @property
-    def ground_state(self):
-        """Get the ground state yield by this solver."""
+    def final_state(self) -> BEPSSolverState:
+        """Get the last state yield by this solver."""
         states_dq = deque(self, maxlen=1)
         last_solver_state: BEPSSolverState = states_dq.pop()
-        return State(
-            mesh=last_solver_state.mesh, wave_func=last_solver_state.wave_func
-        )
+        return last_solver_state
 
     @staticmethod
     def wave_vectors(mesh: Mesh) -> np.ndarray:

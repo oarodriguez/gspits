@@ -39,7 +39,7 @@ def test_beps_solver_ground_state(freq: float):
         abs_tol=1e-8,
         max_time_step_iters=256,
     )
-    ground_state = beps_solver.ground_state
+    ground_state = beps_solver.final_state.state
     assert ground_state.norm == pytest.approx(1, abs=1e-8)
 
 
@@ -58,22 +58,25 @@ def test_beps_solver_bloch_ground_state(freq: float):
 
     # Solve the GPE using a Gaussian state as the starting point.
     ini_gaussian_state = hamiltonian.gaussian_state(mesh)
-    beps_solver = BEPSSolver(
+    beps_solver_1 = BEPSSolver(
         hamiltonian=hamiltonian,
         ini_state=ini_gaussian_state,
         time_mesh=time_mesh,
         abs_tol=1e-8,
         max_time_step_iters=256,
     )
-    ground_state_solver_1 = beps_solver.ground_state
+    final_state_solver_1 = beps_solver_1.final_state
+    ground_state_1 = final_state_solver_1.state
 
     # Solve the GPE using a Bloch state as the starting point.
     ini_bloch_state = BlochState.plane_wave(mesh, wave_vector=0)
-    beps_solver = attr.evolve(beps_solver, ini_state=ini_bloch_state)
-    ground_state_solver_2 = beps_solver.ground_state
+    beps_solver_2 = attr.evolve(beps_solver_1, ini_state=ini_bloch_state)
+    final_state_solver_2 = beps_solver_2.final_state
+    ground_state_2 = final_state_solver_2.state
 
     # Compare results.
     # TODO: Add better assertions.
-    assert ground_state_solver_1.norm == pytest.approx(
-        ground_state_solver_2.norm, abs=1e-8
-    )
+    energy_2 = final_state_solver_2.energy
+    energy_1 = final_state_solver_1.energy
+    assert energy_2 == pytest.approx(energy_1, abs=1e-5)
+    assert ground_state_1.norm == pytest.approx(ground_state_2.norm, abs=1e-8)
