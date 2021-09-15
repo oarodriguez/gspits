@@ -10,7 +10,7 @@ from attr import dataclass
 from scipy import fft
 
 from gspits import Mesh, TimeMesh
-from gspits.one_dim import Hamiltonian, State
+from gspits.one_dim import BlochState, Hamiltonian, State
 
 # Initialize a logger for this module.
 logger = logging.getLogger(__name__)
@@ -48,10 +48,15 @@ class BEPSSolverState:
     # Interaction energy.
     interaction_energy: float
 
+    # Bloch state and/or lattice wave vector.
+    lattice_wave_vector: float = None
+
     @property
-    def state(self):
+    def state(self) -> State:
         """Quantum state associated with the solver state."""
-        return State(self.mesh, self.wave_func)
+        if self.lattice_wave_vector is None:
+            return State(self.mesh, self.wave_func)
+        return BlochState(self.mesh, self.wave_func, self.lattice_wave_vector)
 
 
 @dataclass(frozen=True, slots=True)
@@ -109,8 +114,17 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         time_step_abs_tol = self.time_step_abs_tol
         ext_potential = self.hamiltonian.external_potential
         ext_pot_array = ext_potential(domain_mesh)
-        # Imaginary time evolution.
-        wave_func_tdx = ini_state.wave_func
+        lattice_wave_vector = (
+            ini_state.wave_vector
+            if isinstance(ini_state, BlochState)
+            else None
+        )
+        if isinstance(ini_state, BlochState):
+            wave_func_tdx = ini_state.periodic_component.wave_func
+        else:
+            wave_func_tdx = ini_state.wave_func
+
+        # Start the imaginary time evolution.
         wave_func_tdx_diff = np.nan
         break_evolve = False
         # Logging information.
@@ -118,37 +132,49 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         for step_tdx in range(num_time_steps + 1):
             wave_func_tdx_abs_sqr = np.abs(wave_func_tdx) ** 2
             wave_func_tdx_abs_quartic = wave_func_tdx_abs_sqr ** 2
-            full_pot_array = (
-                ext_pot_array + interaction_factor * wave_func_tdx_abs_sqr
-            )
-            alpha = 0.5 * (full_pot_array.min() + full_pot_array.max())
             wave_func_tdx_fft = fft.fft(wave_func_tdx)
+            wave_func_tdx_fft_abs_sqr = np.abs(wave_func_tdx_fft) ** 2
             kinetic_energy = (
                 0.5
                 * (step_size / num_segments)
-                * np.sum(wave_vectors ** 2 * np.abs(wave_func_tdx_fft) ** 2)
+                * np.sum(wave_vectors ** 2 * wave_func_tdx_fft_abs_sqr)
             )
+            potential_array = (
+                ext_pot_array + interaction_factor * wave_func_tdx_abs_sqr
+            )
+            # We have to correct the kinetic energy due to the presence
+            # of the Bloch state lattice wave vector.
+            if lattice_wave_vector is not None:
+                kinetic_energy += (
+                    -(step_size / num_segments)
+                    * np.sum(
+                        (lattice_wave_vector * wave_vectors)
+                        * wave_func_tdx_fft_abs_sqr
+                    )
+                    + 0.5 * lattice_wave_vector ** 2
+                )
+                potential_array += 0.5 * lattice_wave_vector ** 2
             interaction_energy = (
                 0.5
                 * interaction_factor
                 * step_size
                 * np.sum(wave_func_tdx_abs_quartic)
             )
-            potential_energy = (
-                step_size * np.sum(ext_pot_array * wave_func_tdx_abs_sqr)
-                + interaction_energy
+            potential_energy = step_size * np.sum(
+                ext_pot_array * wave_func_tdx_abs_sqr
             )
-            energy = kinetic_energy + potential_energy
-            chemical_pot = energy + interaction_energy
+            energy = kinetic_energy + potential_energy + interaction_energy
+            chemical_potential = energy + interaction_energy
             yield BEPSSolverState(
                 mesh=mesh,
                 wave_func=wave_func_tdx,
                 wave_vectors=wave_vectors,
                 wave_func_fft=wave_func_tdx_fft,
                 energy=energy,
-                chemical_potential=chemical_pot,
+                chemical_potential=chemical_potential,
                 kinetic_energy=kinetic_energy,
                 interaction_energy=interaction_energy,
+                lattice_wave_vector=lattice_wave_vector,
             )
             # If we have reached the maximum number of steps, then do not
             # make any other calculations. Just try to go to the next loop
@@ -161,15 +187,32 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             # after a single time step.
             wave_func_idx = wave_func_tdx
             wave_func_idx_diff = np.nan
+            stabilization_param = 0.5 * (
+                potential_array.min() + potential_array.max()
+            )
             for idx in range(max_time_step_iters + 1):
-                stabilization_term = (alpha - full_pot_array) * wave_func_idx
-                next_wave_func_idx_fft = (
-                    2
-                    * (
-                        wave_func_tdx_fft
-                        + time_step * fft.fft(stabilization_term)
+                stabilized_potential = (
+                    stabilization_param - potential_array
+                ) * wave_func_idx
+                # TODO: Extract this FFT (and similar expressions) in a
+                #  separate routine, so we can override it in derived classes.
+                next_wave_func_idx_fft_dividend = 2 * (
+                    wave_func_tdx_fft
+                    + time_step * fft.fft(stabilized_potential)
+                )
+                next_wave_func_idx_fft_divisor = 2 + time_step * (
+                    2 * stabilization_param + wave_vectors ** 2
+                )
+                # If the initial state is a Bloch state, include the
+                # contribution arising from the lattice wave vector to the
+                # divisor.
+                if lattice_wave_vector is not None:
+                    next_wave_func_idx_fft_divisor += (
+                        -2 * lattice_wave_vector * wave_vectors
                     )
-                    / (2 + time_step * (2 * alpha + wave_vectors ** 2))
+                next_wave_func_idx_fft = (
+                    next_wave_func_idx_fft_dividend
+                    / next_wave_func_idx_fft_divisor
                 )
                 next_wave_func_idx: np.ndarray = fft.ifft(
                     next_wave_func_idx_fft
