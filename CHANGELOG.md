@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add support to calculate Bloch ground-states of periodic Hamiltonians using
+  `BEPSSolver` instances.
 - Add class `BlochState` to model Bloch states of periodic Hamiltonians.
 - Add new 1D Hamiltonians:
   - `OLHTHamiltonian`. Represents a Bose gas within an optical lattice
@@ -17,6 +19,10 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
+- Retrieve the last state of a `BEPSSolver` instance instead of the Hamiltonian
+  ground-state. This change is advantageous since we can retrieve the
+  ground-state from the last `BEPSSolverState`, in addition to other essential
+  quantities as the energy and chemical potential.
 - `BESPSolver` instances must use the initial state `mesh` attribute. With this
   change, the solver only has one obvious mesh to calculate the ground state.
 - Update dependencies and `poetry.lock` file.
@@ -31,7 +37,8 @@ TODO.
 
 ### Fixed
 
-TODO.
+- Fix the normalization procedure to construct a Bloch plane wave using the
+  `BlochState.plane_wave` class method.
 
 ---
 
