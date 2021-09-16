@@ -1,4 +1,4 @@
-"""Routines for getting the ground-state and related properties."""
+"""Routines to get the ground-state of single-species Hamiltonians."""
 
 import logging
 from collections import deque

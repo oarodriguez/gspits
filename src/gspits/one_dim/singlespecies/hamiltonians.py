@@ -7,8 +7,7 @@ from numba import njit
 from numpy import cos, pi
 
 from gspits import Mesh
-
-from .system import Hamiltonian, State
+from gspits.one_dim import Hamiltonian, State
 
 __all__ = [
     "HTHamiltonian",

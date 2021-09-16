@@ -1,4 +1,4 @@
-"""Validate the routines in `gspits.one_dim.gs_single` module."""
+"""Validate the `gspits.one_dim.singlespecies.groundstate` module."""
 import logging
 
 import attr
@@ -8,8 +8,8 @@ from hypothesis import strategies as stg
 from rich.logging import RichHandler
 
 from gspits import Mesh, TimeMesh
-from gspits.one_dim import BlochState, HTHamiltonian
-from gspits.one_dim.gs_single import BEPSSolver
+from gspits.one_dim import BlochState
+from gspits.one_dim.singlespecies import BEPSSolver, HTHamiltonian
 
 # Some parameter values that define a valid harmonic trap potential.
 FREQ = 1

@@ -1,4 +1,4 @@
-"""Validate the functionality of the `gspits.one_dim.single` module."""
+"""Validate the `gspits.one_dim.singlespecies.hamiltonians` module."""
 from typing import NamedTuple
 
 import numpy as np
@@ -8,7 +8,7 @@ from hypothesis import given, settings
 from hypothesis import strategies as stg
 
 from gspits import Mesh
-from gspits.one_dim import (
+from gspits.one_dim.singlespecies import (
     HTHamiltonian,
     MRHamiltonian,
     OLHTHamiltonian,

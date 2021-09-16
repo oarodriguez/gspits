@@ -19,6 +19,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
+- Move the routines to analyze one-dimensional, single-species Hamiltonians to
+  the `gspits.one_dim.singlespecies` subpackage.
 - Retrieve the last state of a `BEPSSolver` instance instead of the Hamiltonian
   ground-state. This change is advantageous since we can retrieve the
   ground-state from the last `BEPSSolverState`, in addition to other essential
