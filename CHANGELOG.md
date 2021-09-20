@@ -25,7 +25,7 @@ Versions follow [CalVer](https://calver.org).
   ground-state. This change is advantageous since we can retrieve the
   ground-state from the last `BEPSSolverState`, in addition to other essential
   quantities as the energy and chemical potential.
-- `BESPSolver` instances must use the initial state `mesh` attribute. With this
+- `BEPSSolver` instances must use the initial state `mesh` attribute. With this
   change, the solver only has one obvious mesh to calculate the ground state.
 - Update dependencies and `poetry.lock` file.
 
