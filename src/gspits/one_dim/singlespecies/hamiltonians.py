@@ -1,5 +1,6 @@
 """Hamiltonians for one-dimensional, single-species Bose gases."""
 from math import sqrt
+from typing import Sequence
 
 import numpy as np
 from attr import dataclass
@@ -10,9 +11,12 @@ from gspits import Mesh
 from gspits.one_dim import Hamiltonian, State
 
 __all__ = [
+    "DCHamiltonian",
+    "DeltaSpec",
     "HTHamiltonian",
     "MRHamiltonian",
     "OLHTHamiltonian",
+    "SuperDCHamiltonian",
     "plane_wave_state",
 ]
 
@@ -214,3 +218,222 @@ class MRHamiltonian(Hamiltonian):
     def plane_wave_state(mesh: Mesh):
         """Build a normalized plane wave."""
         return plane_wave_state(mesh)
+
+
+@dataclass(frozen=True)
+class DCHamiltonian(Hamiltonian):
+    r"""Hamiltonian of a Bose gas in a Dirac-Comb potential.
+
+    Represent an interacting Bose gas within a 1D, multi-layer lattice
+    modeled by a Dirac-comb potential.
+
+    The argument ``delta_strength`` is the strength of any Dirac-delta
+    potential barrier, ``lattice_period`` sets the distance between two
+    consecutive delta barriers and the lattice period, and the pairwise
+    interaction magnitude between bosons is set by the
+    ``interaction_strength`` argument.
+    """
+
+    # Delta potential strength.
+    delta_strength: float
+
+    # Lattice period.
+    lattice_period: float
+
+    # Pairwise interaction energy.
+    interaction_strength: float
+
+    def __attrs_post_init__(self):
+        """Post-initialization checks."""
+        if np.nan in (
+            self.delta_strength,
+            self.lattice_period,
+            self.interaction_strength,
+        ):
+            raise ValueError
+        if not self.lattice_period > 0:
+            raise ValueError
+
+    @property
+    def interaction_factor(self) -> float:
+        """Gas interaction factor."""
+        return self.interaction_strength
+
+    @property
+    def external_potential(self):
+        """External potential function."""
+        delta_strength = self.delta_strength
+        lattice_period = self.lattice_period
+
+        def _dc_potential(
+            domain_mesh: np.ndarray,
+        ) -> np.ndarray:  # pragma: no cover
+            """Evaluate a multi-rods potential over a mesh."""
+            shifted_domain_mesh = domain_mesh + lattice_period / 2
+            _, shifted_domain_offset = np.divmod(
+                shifted_domain_mesh, lattice_period
+            )
+            barrier_width = np.diff(domain_mesh)[0]
+            return np.where(
+                np.fabs(shifted_domain_offset - lattice_period / 2)
+                <= barrier_width / 2,
+                delta_strength / barrier_width,
+                0,
+            )
+
+        return _dc_potential
+
+
+@dataclass(frozen=True, slots=True)
+class DeltaSpec:
+    """Dirac-delta potential barrier specification.
+
+    The argument ``strength`` indicates the barrier strength, while the
+    ``rel_position`` argument indicates the barrier relative position respect
+    to the domain lower bound where it lies, so ``rel_position`` is
+    a number that lies in the interval :math:`[0, 1]`.
+
+    For instance, if a barrier lies in the interval :math:`[a, b]` and its
+    relative position is ``rel_position = 0``, then the barrier absolute
+    position is :math:`a`. If a barrier relative position is :math:`0.5`,
+    then its absolute position is :math:`a + 0.5 (b - a)`.
+    """
+
+    # Delta potential strength.
+    strength: float
+
+    # Delta potential relative position.
+    rel_position: float
+
+    def __attrs_post_init__(self):
+        """Post-initialization checks."""
+        if np.nan in (
+            self.strength,
+            self.rel_position,
+        ):
+            raise ValueError
+        if self.rel_position < 0 or self.rel_position >= 1:
+            raise ValueError
+
+
+@dataclass(frozen=True)
+class SuperDCHamiltonian(Hamiltonian):
+    r"""Hamiltonian of a Bose gas in a super-Dirac-comb potential.
+
+    Represent an interacting Bose gas within a 1D, multi-layer super-lattice
+    modeled by a super Dirac-comb potential.
+
+    The argument `deltas_seq` indicates the strength and relative positions
+    of each delta potential in the super-lattice. It is a sequence of
+    `DeltaSpec` objects with a given `strength` and `rel_position`. The
+    argument `lattice_period` sets the super-lattice period, while the
+    pairwise interaction magnitude between bosons is set by the
+    `interaction_strength` argument.
+    """
+
+    # Sequence with Dirac-delta potential strengths and locations.
+    deltas_seq: Sequence[DeltaSpec]
+
+    # Lattice period.
+    lattice_period: float
+
+    # Pairwise interaction energy.
+    interaction_strength: float
+
+    def __attrs_post_init__(self):
+        """Post-initialization checks."""
+        if np.nan in (
+            self.deltas_seq,
+            self.lattice_period,
+            self.interaction_strength,
+        ):
+            raise ValueError
+        if not self.lattice_period > 0:
+            raise ValueError
+
+        def _position(spec: DeltaSpec):
+            """Get a Dirac-delta relative position."""
+            return spec.rel_position
+
+        sorted_deltas_seq = sorted(self.deltas_seq, key=_position)
+        object.__setattr__(self, "deltas_seq", sorted_deltas_seq)
+
+    @property
+    def interaction_factor(self) -> float:
+        """Gas interaction factor."""
+        return self.interaction_strength
+
+    @property
+    def external_potential(self):
+        """External potential function."""
+        deltas_seq = self.deltas_seq
+        lattice_period = self.lattice_period
+        delta_strengths = np.array([spec.strength for spec in deltas_seq])
+        delta_rel_positions = np.array(
+            [spec.rel_position for spec in deltas_seq]
+        )
+        num_deltas = len(delta_strengths)
+
+        @njit()
+        def _dc_potential(
+            domain_mesh: np.ndarray,
+        ) -> np.ndarray:  # pragma: no cover
+            """Evaluate a multi-rods potential over a mesh."""
+            barrier_width = np.diff(domain_mesh)[0]
+            shifted_domain_mesh = domain_mesh + lattice_period / 2
+            _, shifted_domain_mesh_periodic = np.divmod(
+                shifted_domain_mesh, lattice_period
+            )
+
+            # Find the closest delta potential that is less than the periodic
+            # domain starting value.
+            delta_idx = 0
+            delta_position = lattice_period * (
+                -0.5 + delta_rel_positions[delta_idx]
+            )
+            domain_mesh_periodic = (
+                shifted_domain_mesh_periodic - lattice_period / 2
+            )
+            # Avoid a never ending cycle.
+            if num_deltas > 1:
+                while delta_position < domain_mesh_periodic[0]:
+                    # Due to periodicity, reset the index value when it reaches
+                    # the largest possible index value. Otherwise, increment it
+                    # by one.
+                    if delta_idx == num_deltas - 1:
+                        delta_idx = 0
+                    else:
+                        delta_idx += 1
+                    delta_position = lattice_period * (
+                        -0.5 + delta_rel_positions[delta_idx]
+                    )
+
+            # Retrieve the current delta barrier strength.
+            delta_strength = delta_strengths[delta_idx]
+            dc_potential = np.zeros_like(domain_mesh_periodic)
+            for idx, position in enumerate(domain_mesh_periodic):
+                # When the current position is sufficiently close to the delta
+                # barrier position, we set the potential in that point to a
+                # value such that it is equivalent to a rectangular barrier
+                # of width ``barrier_width`` with area ``delta_strength``,
+                # simulating a delta-barrier. As the domain mesh becomes
+                # finner, this procedure results in a better approximation of
+                # a delta barrier.
+                if np.fabs(position - delta_position) <= barrier_width / 2:
+                    potential_height = delta_strength / barrier_width
+                    dc_potential[idx] = potential_height
+                    # Once we have set the potential value for a given delta
+                    # barrier, continue with the rest of the barriers. Again, t
+                    # take into account the super-lattice periodicity.
+                    if delta_idx == num_deltas - 1:
+                        delta_idx = 0
+                    else:
+                        delta_idx += 1
+                    delta_strength = delta_strengths[delta_idx]
+                    delta_position = lattice_period * (
+                        -0.5 + delta_rel_positions[delta_idx]
+                    )
+
+            return dc_potential
+
+        return _dc_potential

@@ -4,14 +4,17 @@ from typing import NamedTuple
 import numpy as np
 import pytest
 from attr import evolve
-from hypothesis import given, settings
+from hypothesis import given, note, settings
 from hypothesis import strategies as stg
 
 from gspits import Mesh
 from gspits.one_dim.singlespecies import (
+    DCHamiltonian,
+    DeltaSpec,
     HTHamiltonian,
     MRHamiltonian,
     OLHTHamiltonian,
+    SuperDCHamiltonian,
     plane_wave_state,
 )
 
@@ -312,3 +315,119 @@ def test_plane_wave_state(
     assert np.all(_state.wave_func == state.wave_func)
     _state = MRHamiltonian.plane_wave_state(mesh)
     assert np.all(_state.wave_func == state.wave_func)
+
+
+@given(
+    delta_strength=stg.floats(min_value=1e-2, max_value=1e2, allow_nan=False),
+    interaction_strength=stg.floats(
+        min_value=-1e-2, max_value=1e2, allow_nan=False
+    ),
+    lattice_period=stg.floats(min_value=1, max_value=1e2, allow_nan=False),
+    lower_bound=stg.integers(min_value=-100, max_value=100),
+    num_segments_half=stg.integers(min_value=1, max_value=256),
+)
+@settings(max_examples=20, deadline=20000)
+def test_dc_hamiltonian(
+    delta_strength: float,
+    interaction_strength: float,
+    lattice_period: int,
+    lower_bound: float,
+    num_segments_half: int,
+):
+    """Check the core functionality of `SuperDCHamiltonian` class."""
+    # Non-uniform Dirac-comb potential are closely tied to the mesh where
+    # we evaluate them.
+    upper_bound = lower_bound + lattice_period
+    num_segments = 2 * num_segments_half
+    mesh = Mesh(lower_bound, upper_bound, num_segments=num_segments)
+    hamiltonian = DCHamiltonian(
+        delta_strength=delta_strength,
+        lattice_period=lattice_period,
+        interaction_strength=interaction_strength,
+    )
+
+    # Some natural but important assertions about the Hamiltonian attributes.
+    assert hamiltonian.interaction_factor == interaction_strength
+
+    # Check that the external potential function works correctly.
+    domain_array = mesh.array
+    potential_func = hamiltonian.external_potential
+    potential_array = potential_func(domain_array)
+    assert potential_array.shape == domain_array.shape
+
+    # For a 1D array, take only the first tuple element returned by
+    # ``nonzero`` method.
+    nonzero_potential_indices = potential_array.nonzero()[0]
+    assert len(nonzero_potential_indices) == 1
+
+    # The nonzero elements of the `potential_array` array represent the
+    # delta barriers. They must be equally spaced by the same number of
+    # domain mesh segments.
+    assert np.all(np.diff(nonzero_potential_indices) == num_segments)
+
+    # Show some debug information.
+    note(mesh.array)
+    note(potential_array)
+    note(nonzero_potential_indices)
+
+
+# Fix the lower and upper bounds to test the
+LOWER_BOUND = -0.5
+UPPER_BOUND = 0.5
+
+
+@given(
+    num_deltas=stg.integers(min_value=1, max_value=32),
+    interaction_strength=stg.floats(
+        min_value=-1e-2, max_value=1e2, allow_nan=False
+    ),
+)
+@settings(max_examples=20, deadline=20000)
+def test_super_dc_hamiltonian(
+    num_deltas: int,
+    interaction_strength: float,
+):
+    """Check the core functionality of `SuperDCHamiltonian` class."""
+    # Non-uniform Dirac-comb potential are closely tied to the mesh where
+    # we evaluate them.
+    num_inter_delta_segments = 2 * 9
+    num_segments = num_deltas * num_inter_delta_segments
+    mesh = Mesh(LOWER_BOUND, UPPER_BOUND, num_segments=num_segments)
+    _rel_positions = np.linspace(0, 1, num=num_deltas, endpoint=False)
+    _strengths = 2 * np.ones_like(_rel_positions)
+    deltas_seq = [
+        DeltaSpec(strength=strength, rel_position=rel_pos)
+        for strength, rel_pos in zip(_strengths, _rel_positions)
+    ]
+    lattice_period = UPPER_BOUND - LOWER_BOUND
+    hamiltonian = SuperDCHamiltonian(
+        deltas_seq=deltas_seq,
+        lattice_period=lattice_period,
+        interaction_strength=interaction_strength,
+    )
+
+    # Some natural but important assertions about the Hamiltonian attributes.
+    assert hamiltonian.interaction_factor == interaction_strength
+
+    # Check that the external potential function works correctly.
+    domain_array = mesh.array
+    potential_func = hamiltonian.external_potential
+    potential_array = potential_func(domain_array)
+    assert potential_array.shape == domain_array.shape
+
+    # For a 1D array, take only the first tuple element returned by
+    # ``nonzero`` method.
+    nonzero_potential_indices = potential_array.nonzero()[0]
+    assert len(nonzero_potential_indices) == num_deltas
+
+    # The nonzero elements of the `potential_array` array represent the
+    # delta barriers. They must be equally spaced by the same number of
+    # domain mesh segments.
+    assert np.all(
+        np.diff(nonzero_potential_indices) == num_inter_delta_segments
+    )
+
+    # Show some debug information.
+    note(mesh.array)
+    note(potential_array)
+    note(nonzero_potential_indices)
