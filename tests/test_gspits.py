@@ -4,4 +4,4 @@ import gspits
 
 def test_version():
     """Verify we have updated the package version."""
-    assert gspits.__version__ == "2021.2.0"
+    assert gspits.__version__ == "2021.3.0.dev0"
