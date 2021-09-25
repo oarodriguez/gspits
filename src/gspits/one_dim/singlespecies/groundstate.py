@@ -104,6 +104,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         domain_mesh = mesh.array
         step_size = mesh.step_size
         num_segments = mesh.num_segments
+        domain_size = mesh.upper_bound - mesh.lower_bound
         fft_wave_vectors = self.fft_wave_vectors(mesh)
         external_potential = self.hamiltonian.external_potential
         external_potential_array = external_potential(domain_mesh)
@@ -139,7 +140,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             )
             potential_array = (
                 external_potential_array
-                + interaction_factor * wave_func_tdx_abs_sqr
+                + interaction_factor * domain_size * wave_func_tdx_abs_sqr
             )
             # We have to correct the kinetic energy due to the presence
             # of the Bloch state lattice wave vector.
@@ -156,6 +157,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             interaction_energy = (
                 0.5
                 * interaction_factor
+                * domain_size
                 * step_size
                 * np.sum(wave_func_tdx_abs_quartic)
             )

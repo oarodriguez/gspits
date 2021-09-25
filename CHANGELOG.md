@@ -39,6 +39,9 @@ TODO.
 
 ### Fixed
 
+- Fix the code and equations for the imaginary time evolution. This change
+  ensures that the system properties are size-independent if the system density
+  remains constant.
 - Fix the normalization procedure to construct a Bloch plane wave using the
   `BlochState.plane_wave` class method.
 
