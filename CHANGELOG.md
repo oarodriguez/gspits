@@ -6,6 +6,7 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add `sphinx-book-theme` theme.
 - Install `myst-parser` package so we can write documentation using markdown.
 
 ### Changed
