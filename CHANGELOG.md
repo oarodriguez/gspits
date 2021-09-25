@@ -35,7 +35,8 @@ TODO.
 
 ### Removed
 
-TODO.
+- Remove `gspits.one_dim.system.SupportsExternalPotential` class.
+- Remove `gspits.one_dim.system.external_potential` function.
 
 ### Fixed
 
