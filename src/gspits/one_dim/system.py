@@ -13,8 +13,6 @@ __all__ = [
     "ExternalPotential",
     "Hamiltonian",
     "State",
-    "SupportsExternalPotential",
-    "external_potential",
 ]
 
 
@@ -32,29 +30,6 @@ class ExternalPotential(Protocol):
             domain mesh.
         """
         raise NotImplementedError
-
-
-@runtime_checkable
-class SupportsExternalPotential(Protocol):
-    """Define the basic structure of an external potential."""
-
-    __slots__ = ()
-
-    @abstractmethod
-    def __external_potential__(self) -> ExternalPotential:
-        """Get a function that evaluate the external potential."""
-        raise NotImplementedError
-
-
-def external_potential(obj: SupportsExternalPotential):
-    """Get the callable that evaluates the potential from an object.
-
-    :param obj: An object that implements the `SupportsExternalPotential`
-                protocol.
-    :return: The callable object that evaluates the external potential as
-             a function of the position.
-    """
-    return obj.__external_potential__()
 
 
 @runtime_checkable
