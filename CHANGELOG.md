@@ -4,6 +4,10 @@ Versions follow [CalVer](https://calver.org).
 
 ## 2021.3.0.dev0 (Not yet released)
 
+### Added
+
+- Install `myst-parser` package so we can write documentation using markdown.
+
 ### Changed
 
 TODO.
