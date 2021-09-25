@@ -45,6 +45,9 @@ class BEPSSolverState:
     # Kinetic energy.
     kinetic_energy: float
 
+    # Energy contribution due to the external potential.
+    potential_energy: float
+
     # Interaction energy.
     interaction_energy: float
 
@@ -174,6 +177,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
                 energy=energy,
                 chemical_potential=chemical_potential,
                 kinetic_energy=kinetic_energy,
+                potential_energy=potential_energy,
                 interaction_energy=interaction_energy,
                 lattice_wave_vector=lattice_wave_vector,
             )
