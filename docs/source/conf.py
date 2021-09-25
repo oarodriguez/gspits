@@ -13,16 +13,16 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
-
+import gspits
 
 # -- Project information -----------------------------------------------------
 
-project = "gspits"
-copyright = "2021, Omar Abel Rodríguez-López"
-author = "Omar Abel Rodríguez-López"
+project = gspits.metadata["name"]
+copyright = f"2021, {gspits.__author__}"
+author = f"{gspits.__author__}"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = gspits.__version__
 
 
 # -- General configuration ---------------------------------------------------
