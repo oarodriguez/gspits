@@ -2,7 +2,7 @@
 
 Versions follow [CalVer](https://calver.org).
 
-## 2021.2.0.dev0 (Not yet released)
+## 2021.2.0 (2021-09-25)
 
 ### Added
 
@@ -28,10 +28,6 @@ Versions follow [CalVer](https://calver.org).
 - `BEPSSolver` instances must use the initial state `mesh` attribute. With this
   change, the solver only has one obvious mesh to calculate the ground state.
 - Update dependencies and `poetry.lock` file.
-
-### Deprecated
-
-TODO.
 
 ### Removed
 
