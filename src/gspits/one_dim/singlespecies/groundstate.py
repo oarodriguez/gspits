@@ -3,7 +3,7 @@
 import logging
 from collections import deque
 from math import pi
-from typing import Iterable, Iterator
+from typing import Iterable, Iterator, Optional
 
 import numpy as np
 from attr import dataclass
@@ -53,7 +53,7 @@ class BEPSSolverState:
     interaction_energy: float
 
     # Bloch state and/or lattice wave vector.
-    lattice_wave_vector: float = None
+    lattice_wave_vector: Optional[float] = None
 
     @property
     def state(self) -> State:
@@ -128,7 +128,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
         max_time_step_iters = self.max_time_step_iters
         abs_tol = self.abs_tol
         time_step_abs_tol = self.time_step_abs_tol
-        wave_func_tdx_diff = np.nan
+        wave_func_tdx_diff: float = np.nan
         break_evolve = False
         # Logging information.
         logger.debug("Starting BEPS")
@@ -192,7 +192,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             # Start iterative procedure to find the wave function
             # after a single time step.
             wave_func_idx = wave_func_tdx
-            wave_func_idx_diff = np.nan
+            wave_func_idx_diff: float = np.nan
             stabilization_param = 0.5 * (
                 potential_array.min() + potential_array.max()
             )
@@ -223,7 +223,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
                 next_wave_func_idx: np.ndarray = fft.ifft(
                     next_wave_func_idx_fft
                 )
-                wave_func_idx_diff: float = np.abs(
+                wave_func_idx_diff = np.abs(
                     wave_func_idx - next_wave_func_idx
                 ).max()
                 wave_func_idx = next_wave_func_idx
@@ -253,7 +253,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             next_wave_func_tdx = wave_func_idx / norm_wave_func_idx
             # logger.debug({"wave_func": next_wave_func_tdx})
             # Compare the difference between wave functions.
-            wave_func_tdx_diff: float = np.abs(
+            wave_func_tdx_diff = np.abs(
                 wave_func_tdx - next_wave_func_tdx
             ).max()
             # Reassign the initial wave function for the next time step.
