@@ -1,4 +1,4 @@
-"""Routines to generate spatial and temporal meshes."""
+"""Routines to generate spatial and temporal partitions."""
 
 import numpy as np
 from attr import dataclass
@@ -8,7 +8,7 @@ __all__ = ["Partition", "TimePartition"]
 
 @dataclass(frozen=True)
 class Partition:
-    """Spatial mesh partition."""
+    """Construct a spatial partition."""
 
     # Lower bound.
     lower_bound: float
@@ -19,7 +19,7 @@ class Partition:
     # Mesh number of segments.
     num_segments: int
 
-    # Indicate whether to consider the upper bound as part of the mesh.
+    # Indicate whether to consider the upper bound as part of the partition.
     # If `False`, the upper bound is excluded.
     endpoint: bool = False
 
@@ -32,12 +32,12 @@ class Partition:
 
     @property
     def step_size(self):
-        """Mesh step size."""
+        """Partition step size."""
         return (self.upper_bound - self.lower_bound) / self.num_segments
 
     @property
     def array(self) -> np.ndarray:
-        """Return an array with the mesh points."""
+        """Return an array with the partition points."""
         endpoint = self.endpoint
         num_segments = self.num_segments + (1 if endpoint else 0)
         return np.linspace(
@@ -50,15 +50,15 @@ class Partition:
 
 @dataclass(frozen=True)
 class TimePartition:
-    """Mesh specification."""
+    """Construct a time partition."""
 
-    # Mesh time step.
+    # Partition time step.
     time_step: float
 
-    # Mesh number of steps.
+    # Partition number of steps.
     num_steps: int
 
-    # Mesh initial time.
+    # Partition initial time.
     ini_time: float = 0
 
     # Indicate whether to include the end time as part of the mesh.
@@ -74,12 +74,12 @@ class TimePartition:
 
     @property
     def finish_time(self):
-        """Mesh step size."""
+        """Partition finish time."""
         return self.ini_time + self.num_steps * self.time_step
 
     @property
     def array(self) -> np.ndarray:
-        """Return an array with the mesh points."""
+        """Return an array with the partition points."""
         endpoint = self.endpoint
         num_steps = self.num_steps + (1 if endpoint else 0)
         return np.linspace(
