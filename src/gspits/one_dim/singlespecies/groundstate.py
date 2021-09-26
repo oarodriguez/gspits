@@ -9,7 +9,8 @@ import numpy as np
 from attr import dataclass
 from scipy import fft
 
-from gspits import Mesh, TimeMesh
+from gspits import Partition as Mesh
+from gspits import TimePartition as TimeMesh
 from gspits.one_dim import BlochState, Hamiltonian, State
 
 # Initialize a logger for this module.

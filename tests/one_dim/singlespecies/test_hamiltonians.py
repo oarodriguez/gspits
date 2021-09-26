@@ -7,7 +7,7 @@ from attr import evolve
 from hypothesis import given, note, settings
 from hypothesis import strategies as stg
 
-from gspits import Mesh
+from gspits import Partition as Mesh
 from gspits.one_dim.singlespecies import (
     DCHamiltonian,
     DeltaSpec,

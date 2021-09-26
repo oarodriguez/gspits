@@ -11,7 +11,10 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
-TODO.
+- Rename some classes in `gspits.mesh` module:
+  - Rename class `Mesh` to `Partition`.
+  - Rename class `TimeMesh` to `TimePartition`.
+- Add aliases to new class names in existing code to keep compatibility.
 
 ### Deprecated
 

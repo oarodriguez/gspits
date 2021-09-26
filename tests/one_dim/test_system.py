@@ -8,7 +8,7 @@ from hypothesis import strategies as stg
 from numba import njit
 from numpy import pi
 
-from gspits import Mesh
+from gspits import Partition as Mesh
 from gspits.one_dim import BlochState, ExternalPotential, Hamiltonian
 
 

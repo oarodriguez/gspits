@@ -6,7 +6,7 @@ from typing import Protocol, runtime_checkable
 import numpy as np
 from attr import dataclass
 
-from gspits import Mesh
+from gspits import Partition as Mesh
 
 __all__ = [
     "BlochState",

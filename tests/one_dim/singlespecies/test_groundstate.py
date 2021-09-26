@@ -7,7 +7,8 @@ from hypothesis import given, settings
 from hypothesis import strategies as stg
 from rich.logging import RichHandler
 
-from gspits import Mesh, TimeMesh
+from gspits import Partition as Mesh
+from gspits import TimePartition as TimeMesh
 from gspits.one_dim import BlochState
 from gspits.one_dim.singlespecies import BEPSSolver, HTHamiltonian
 

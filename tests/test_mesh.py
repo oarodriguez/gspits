@@ -1,10 +1,13 @@
+"""Verify the routines in ``gspits.mesh`` module."""
+
 import numpy as np
 import pytest
 from attr import evolve
 from hypothesis import given
 from hypothesis import strategies as stg
 
-from gspits import Mesh, TimeMesh
+from gspits import Partition as Mesh
+from gspits import TimePartition as TimeMesh
 
 valid_lower_bound_stg = stg.floats(min_value=0, max_value=2)
 valid_upper_bound_stg = stg.floats(min_value=3, max_value=4)
@@ -13,7 +16,7 @@ valid_num_segments_steps_stg = stg.integers(min_value=1, max_value=512)
 
 @given(lower_bound=stg.floats(min_value=100, max_value=200))
 def test_mesh(lower_bound: float):
-    """Test spatial meshes with invalid bounds"""
+    """Test spatial meshes with invalid bounds."""
     with pytest.raises(ValueError):
         Mesh(lower_bound, upper_bound=0, num_segments=128)
 

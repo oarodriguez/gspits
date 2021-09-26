@@ -7,7 +7,7 @@ from attr import dataclass
 from numba import njit
 from numpy import cos, pi
 
-from gspits import Mesh
+from gspits import Partition as Mesh
 from gspits.one_dim import Hamiltonian, State
 
 __all__ = [

@@ -9,7 +9,7 @@ Copyright © 2021, Omar Abel Rodríguez-López.
 # See https://github.com/python-poetry/poetry/pull/2366#issuecomment-652418094
 import importlib.metadata as importlib_metadata
 
-from .mesh import Mesh, TimeMesh
+from .mesh import Partition, TimePartition
 
 metadata = importlib_metadata.metadata("gspits")
 
@@ -20,8 +20,8 @@ __description__ = metadata["description"]
 __license__ = metadata["license"]
 
 __all__ = [
-    "Mesh",
-    "TimeMesh",
+    "Partition",
+    "TimePartition",
     "__author__",
     "__description__",
     "__license__",

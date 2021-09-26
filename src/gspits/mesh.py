@@ -3,12 +3,12 @@
 import numpy as np
 from attr import dataclass
 
-__all__ = ["Mesh", "TimeMesh"]
+__all__ = ["Partition", "TimePartition"]
 
 
 @dataclass(frozen=True)
-class Mesh:
-    """Spatial mesh specification."""
+class Partition:
+    """Spatial mesh partition."""
 
     # Lower bound.
     lower_bound: float
@@ -49,7 +49,7 @@ class Mesh:
 
 
 @dataclass(frozen=True)
-class TimeMesh:
+class TimePartition:
     """Mesh specification."""
 
     # Mesh time step.
