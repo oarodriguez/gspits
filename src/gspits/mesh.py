@@ -132,7 +132,7 @@ class Mesh:
     partitions: MeshPartitions
 
     # Mesh sparse arrays.
-    _arrays: MeshArrays = field(default=None, repr=False)
+    _arrays: MeshArrays = field(init=False, default=None, repr=False)
 
     def __attrs_post_init__(self):
         """Post-initialization tasks."""
