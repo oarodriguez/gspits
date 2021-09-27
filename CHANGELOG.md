@@ -6,8 +6,10 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add `size`, `element_size`, `num_elements`, and `shape` attributes to
+  `gspits.mesh.Mesh` instances.
 - Add `size` property to `gspits.mesh.Partition` class.
-- Ass `duration` property to `gspits.mesh.TimePartition` class.
+- Add `duration` property to `gspits.mesh.TimePartition` class.
 - Add a `Mesh` class to build multidimensional meshes.
 - Add `sphinx-book-theme` theme.
 - Install `myst-parser` package so we can write documentation using markdown.

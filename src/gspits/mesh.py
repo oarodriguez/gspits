@@ -153,6 +153,41 @@ class Mesh:
         return len(self.partitions)
 
     @property
+    def size(self) -> float:
+        """Get the mesh size.
+
+        For a 1D mesh, it is the length of its only partition. For a
+        2D mesh, it is the area of the region delimited by its partitions.
+        For a 3D mesh, it is the volume.
+
+        :rtype: float
+        """
+        size = 1.0
+        for partition in self.partitions:
+            size *= partition.size
+        return size
+
+    @property
+    def element_size(self) -> float:
+        """Size of a mesh partition element.
+
+        :rtype: float
+        """
+        return float(
+            np.prod([partition.step_size for partition in self.partitions])
+        )
+
+    @property
+    def num_elements(self) -> int:
+        """Get the number of elements that compose the mesh.
+
+        :rtype: int
+        """
+        return int(
+            np.prod([partition.num_segments for partition in self.partitions])
+        )
+
+    @property
     def arrays(self) -> MeshArrays:
         """Return the NumPy arrays representing the mesh.
 

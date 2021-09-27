@@ -132,6 +132,38 @@ def test_mesh_init(lower_bound: float, size: float, num_segments: int):
     size=stg.floats(min_value=1, max_value=10),
     num_segments=stg.integers(min_value=1, max_value=512),
 )
+def test_mesh_elements(lower_bound: float, size: float, num_segments: int):
+    """Check ``Mesh`` functionality concerning its elements."""
+    upper_bound = lower_bound + size
+    partition_x = Partition(lower_bound, upper_bound, num_segments)
+    partition_y = Partition(lower_bound, upper_bound, num_segments)
+    partition_z = Partition(lower_bound, upper_bound, num_segments)
+
+    with pytest.raises(ValueError):
+        # A mesh can have three dimensions at most.
+        Mesh((partition_x, partition_y, partition_z, partition_x))
+
+    # Checks for a one-dimensional mesh.
+    partitions_1d = (partition_x,)
+    mesh = Mesh(partitions_1d)
+    assert mesh.size == pytest.approx(mesh.num_elements * mesh.element_size)
+
+    # Checks for a two-dimensional mesh.
+    partitions_2d = partition_x, partition_y
+    mesh = Mesh(partitions_2d)
+    assert mesh.size == pytest.approx(mesh.num_elements * mesh.element_size)
+
+    # Checks for a three-dimensional mesh.
+    partitions_3d = partition_x, partition_y, partition_z
+    mesh = Mesh(partitions_3d)
+    assert mesh.size == pytest.approx(mesh.num_elements * mesh.element_size)
+
+
+@given(
+    lower_bound=stg.floats(min_value=0, max_value=2),
+    size=stg.floats(min_value=1, max_value=10),
+    num_segments=stg.integers(min_value=1, max_value=512),
+)
 def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
     """Check consistency of a ``Mesh`` arrays shapes."""
     upper_bound = lower_bound + size
