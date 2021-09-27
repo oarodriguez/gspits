@@ -3,7 +3,13 @@
 import numpy as np
 from attr import dataclass, field
 
-__all__ = ["Mesh", "Partition", "TimePartition"]
+__all__ = [
+    "Mesh",
+    "MeshArrays",
+    "MeshPartitions",
+    "Partition",
+    "TimePartition",
+]
 
 
 @dataclass(frozen=True)
