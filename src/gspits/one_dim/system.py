@@ -77,7 +77,7 @@ class State:
 
 
 @dataclass(frozen=True, slots=True)
-class BlochState(State):
+class BlochState:
     r"""Represent a Bloch state.
 
     A Bloch state :math:`\psi(z)` with  wave vector :math:`k` is a wave
@@ -94,8 +94,8 @@ class BlochState(State):
     # The domain mesh.
     mesh: Mesh
 
-    # Array with the wave function values at the mesh points.
-    wave_func: np.ndarray
+    # An array with the periodic-part wave function values at the mesh points.
+    periodic_wave_func: np.ndarray
 
     # Lattice wave vector of this state.
     wave_vector: float
@@ -112,10 +112,7 @@ class BlochState(State):
 
         Therefore, :math:`\phi(z) = \psi(z) e^{-i k z}`.
         """
-        wave_func = self.wave_func * np.exp(
-            -1j * self.wave_vector * self.mesh.array
-        )
-        return State(mesh=self.mesh, wave_func=wave_func)
+        return State(mesh=self.mesh, wave_func=self.periodic_wave_func)
 
     @classmethod
     def plane_wave(cls, mesh: Mesh, wave_vector: float):
@@ -130,8 +127,30 @@ class BlochState(State):
         so :math:`\psi(z) = \phi(z) e^{i k z}` is normalized.
         """
         mesh_array = mesh.array
-        domain_extent = mesh.upper_bound - mesh.lower_bound
-        wave_func = np.exp(1j * wave_vector * mesh_array) / np.sqrt(
-            domain_extent
+        domain_extent = mesh.size
+        periodic_wave_func = np.ones(mesh_array.shape) / np.sqrt(domain_extent)
+        return cls(
+            mesh=mesh,
+            periodic_wave_func=periodic_wave_func,
+            wave_vector=wave_vector,
         )
-        return cls(mesh=mesh, wave_func=wave_func, wave_vector=wave_vector)
+
+    @property
+    def wave_func(self):
+        """Get the state complex wave function."""
+        wave_func = self.periodic_wave_func * np.exp(
+            1j * self.wave_vector * self.mesh.array
+        )
+        return wave_func
+
+    @property
+    def norm(self):
+        """Get the state discrete norm.
+
+        The discrete norm is equivalent to use a Riemann sum to approximate
+        the exact wave function norm.
+        TODO: Can we replace the Riemann sum with the trapezoidal rule?
+        """
+        wave_func = self.periodic_wave_func
+        dx = self.mesh.step_size
+        return dx * np.sum(np.abs(wave_func) ** 2)

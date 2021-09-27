@@ -3,7 +3,7 @@
 import logging
 from collections import deque
 from math import pi
-from typing import Iterable, Iterator, Optional
+from typing import Iterable, Iterator, Optional, Union
 
 import numpy as np
 from attr import dataclass
@@ -17,6 +17,10 @@ from gspits.one_dim import BlochState, Hamiltonian, State
 logger = logging.getLogger(__name__)
 
 __all__ = ["BEPSSolver", "BEPSSolverState"]
+
+
+# Type of states the BEPS solver calculates.
+State_T = Union[State, BlochState]
 
 
 @dataclass(frozen=True, slots=True)
@@ -56,11 +60,15 @@ class BEPSSolverState:
     lattice_wave_vector: Optional[float] = None
 
     @property
-    def state(self) -> State:
+    def state(self) -> State_T:
         """Quantum state associated with the solver state."""
         if self.lattice_wave_vector is None:
             return State(self.mesh, self.wave_func)
-        return BlochState(self.mesh, self.wave_func, self.lattice_wave_vector)
+        return BlochState(
+            mesh=self.mesh,
+            periodic_wave_func=self.wave_func,
+            wave_vector=self.lattice_wave_vector,
+        )
 
 
 @dataclass(frozen=True, slots=True)
@@ -73,7 +81,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
     hamiltonian: Hamiltonian
 
     # State used for starting the procedure.
-    ini_state: State
+    ini_state: State_T
 
     # Temporal mesh used for the imaginary-time evolution.
     time_mesh: TimeMesh
@@ -118,7 +126,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
             else None
         )
         if isinstance(ini_state, BlochState):
-            wave_func_tdx = ini_state.periodic_component.wave_func
+            wave_func_tdx = ini_state.periodic_wave_func
         else:
             wave_func_tdx = ini_state.wave_func
 

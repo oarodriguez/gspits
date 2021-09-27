@@ -16,6 +16,9 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
+- Do not make `gspits.one_dim.system.BlochState` a subclass of
+  `gspits.one_dim.system.State`. Simplify the implementation of the former by
+  storing the periodic-part wave function instead of the full wave function.
 - Rename some classes in `gspits.mesh` module:
   - Rename class `Mesh` to `Partition`.
   - Rename class `TimeMesh` to `TimePartition`.
