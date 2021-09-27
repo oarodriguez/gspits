@@ -1,9 +1,9 @@
 """Routines to generate spatial and temporal partitions."""
 
 import numpy as np
-from attr import dataclass
+from attr import dataclass, field
 
-__all__ = ["Partition", "TimePartition"]
+__all__ = ["Mesh", "Partition", "TimePartition"]
 
 
 @dataclass(frozen=True)
@@ -88,3 +88,53 @@ class TimePartition:
             num=num_steps,
             endpoint=endpoint,
         )
+
+
+# Mesh attributes types.
+# See bug https://github.com/python/mypy/issues/9980.
+MeshPartitions = tuple[Partition, ...]  # type: ignore
+MeshArrays = tuple[np.ndarray, ...]  # type: ignore
+
+# Error messages.
+MESH_DIMENSION_ERROR = (
+    "The mesh maximum allowed dimension is three. Therefore, you should "
+    "supply the 'partitions' argument a tuple with at most three elements."
+)
+
+
+@dataclass(frozen=True)
+class Mesh:
+    """Construct a spatial mesh from several partitions.
+
+    :param partitions:
+        A tuple of ``Partition`` instances for each dimension of the
+        mesh. The tuple must have at most three elements.
+    :type partitions: tuple[Partition, ...]
+    """
+
+    # Partitions that form the mesh.
+    partitions: MeshPartitions
+
+    # Mesh sparse arrays.
+    _arrays: MeshArrays = field(default=None, repr=False)
+
+    def __attrs_post_init__(self):
+        """Post-initialization tasks."""
+        if self.dimension > 3:
+            raise ValueError(MESH_DIMENSION_ERROR)
+        partition_arrays = [partition.array for partition in self.partitions]
+        arrays = np.meshgrid(*partition_arrays, indexing="ij", sparse=True)
+        object.__setattr__(self, "_arrays", tuple(arrays))
+
+    @property
+    def dimension(self):
+        """Give the mesh dimension."""
+        return len(self.partitions)
+
+    @property
+    def arrays(self):
+        """Return the NumPy arrays representing the mesh.
+
+        **NOTE**: The returned arrays are sparse.
+        """
+        return self._arrays

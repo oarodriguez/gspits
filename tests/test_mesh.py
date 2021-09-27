@@ -5,8 +5,10 @@ import pytest
 from attr import evolve
 from hypothesis import given
 from hypothesis import strategies as stg
+from numpy import broadcast_shapes
 
 from gspits import Partition, TimePartition
+from gspits.mesh import Mesh
 
 valid_lower_bound_stg = stg.floats(min_value=0, max_value=2)
 valid_upper_bound_stg = stg.floats(min_value=3, max_value=4)
@@ -84,3 +86,65 @@ def test_time_partition(time_step: float, num_steps: int, ini_time: float):
     time_mesh = evolve(time_mesh, endpoint=True)
     partition_array = time_mesh.array
     assert np.allclose(np.diff(partition_array), time_mesh.time_step)
+
+
+@given(
+    lower_bound=stg.floats(min_value=0, max_value=2),
+    size=stg.floats(min_value=1, max_value=10),
+    num_segments=stg.integers(min_value=1, max_value=512),
+)
+def test_mesh_init(lower_bound: float, size: float, num_segments: int):
+    """Check ``Mesh`` instances initialization."""
+    upper_bound = lower_bound + size
+    partition_x = Partition(lower_bound, upper_bound, num_segments)
+    partition_y = Partition(lower_bound, upper_bound, num_segments)
+    partition_z = Partition(lower_bound, upper_bound, num_segments)
+
+    with pytest.raises(ValueError):
+        # A mesh can have three dimensions at most.
+        Mesh((partition_x, partition_y, partition_z, partition_x))
+
+
+@given(
+    lower_bound=stg.floats(min_value=0, max_value=2),
+    size=stg.floats(min_value=1, max_value=10),
+    num_segments=stg.integers(min_value=1, max_value=512),
+)
+def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
+    """Check consistency of a ``Mesh`` arrays shapes."""
+    upper_bound = lower_bound + size
+    partition_x = Partition(lower_bound, upper_bound, num_segments)
+    partition_y = Partition(lower_bound, upper_bound, num_segments)
+    partition_z = Partition(lower_bound, upper_bound, num_segments)
+
+    with pytest.raises(ValueError):
+        # A mesh can have three dimensions at most.
+        Mesh((partition_x, partition_y, partition_z, partition_x))
+
+    # Checks for a one-dimensional mesh.
+    partitions_1d = (partition_x,)
+    mesh = Mesh(partitions_1d)
+    assert mesh.dimension == 1
+    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
+    assert broadcast_shapes(*mesh_arrays_shapes) == (partition_x.num_segments,)
+
+    # Checks for a two-dimensional mesh.
+    partitions_2d = partition_x, partition_y
+    mesh = Mesh(partitions_2d)
+    assert mesh.dimension == 2
+    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
+    assert broadcast_shapes(*mesh_arrays_shapes) == (
+        partition_x.num_segments,
+        partition_y.num_segments,
+    )
+
+    # Checks for a three-dimensional mesh.
+    partitions_3d = partition_x, partition_y, partition_z
+    mesh = Mesh(partitions_3d)
+    assert mesh.dimension == 3
+    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
+    assert broadcast_shapes(*mesh_arrays_shapes) == (
+        partition_x.num_segments,
+        partition_y.num_segments,
+        partition_z.num_segments,
+    )
