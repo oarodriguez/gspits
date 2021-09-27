@@ -122,10 +122,9 @@ MESH_DIMENSION_ERROR = (
 class Mesh:
     """Construct a spatial mesh from several partitions.
 
-    :param partitions:
+    :param tuple[Partition, ...] partitions:
         A tuple of ``Partition`` instances for each dimension of the
         mesh. The tuple must have at most three elements.
-    :type partitions: tuple[Partition, ...]
     """
 
     # Partitions that form the mesh.
@@ -143,14 +142,22 @@ class Mesh:
         object.__setattr__(self, "_arrays", tuple(arrays))
 
     @property
-    def dimension(self):
-        """Give the mesh dimension."""
+    def dimension(self) -> int:
+        """Give the mesh dimension.
+
+        It is one for a 1D mesh, two for a 2D mesh, and three for a
+        3D mesh.
+
+        :rtype: int
+        """
         return len(self.partitions)
 
     @property
-    def arrays(self):
+    def arrays(self) -> MeshArrays:
         """Return the NumPy arrays representing the mesh.
 
         **NOTE**: The returned arrays are sparse.
+
+        :rtype: tuple[numpy.ndarray, ...]
         """
         return self._arrays
