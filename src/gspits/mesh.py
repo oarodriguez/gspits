@@ -161,3 +161,12 @@ class Mesh:
         :rtype: tuple[numpy.ndarray, ...]
         """
         return self._arrays
+
+    @property
+    def shape(self):
+        """Shape of the mesh arrays after being broadcast.
+
+        :rtype: tuple[int, ...]
+        """
+        array_shapes = [array.shape for array in self.arrays]
+        return np.broadcast_shapes(*array_shapes)

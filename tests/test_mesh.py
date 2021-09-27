@@ -5,7 +5,6 @@ import pytest
 from attr import evolve
 from hypothesis import given
 from hypothesis import strategies as stg
-from numpy import broadcast_shapes
 
 from gspits import Mesh, Partition, TimePartition
 
@@ -148,15 +147,13 @@ def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
     partitions_1d = (partition_x,)
     mesh = Mesh(partitions_1d)
     assert mesh.dimension == 1
-    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
-    assert broadcast_shapes(*mesh_arrays_shapes) == (partition_x.num_segments,)
+    assert mesh.shape == (partition_x.num_segments,)
 
     # Checks for a two-dimensional mesh.
     partitions_2d = partition_x, partition_y
     mesh = Mesh(partitions_2d)
     assert mesh.dimension == 2
-    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
-    assert broadcast_shapes(*mesh_arrays_shapes) == (
+    assert mesh.shape == (
         partition_x.num_segments,
         partition_y.num_segments,
     )
@@ -165,8 +162,7 @@ def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
     partitions_3d = partition_x, partition_y, partition_z
     mesh = Mesh(partitions_3d)
     assert mesh.dimension == 3
-    mesh_arrays_shapes = [array.shape for array in mesh.arrays]
-    assert broadcast_shapes(*mesh_arrays_shapes) == (
+    assert mesh.shape == (
         partition_x.num_segments,
         partition_y.num_segments,
         partition_z.num_segments,
