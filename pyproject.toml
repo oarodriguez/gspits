@@ -94,6 +94,17 @@ exclude_lines = [
   "raise NotImplementedError",
 ]
 
+[tool.mypy]
+python_version = "3.9"
+allow_redefinition = false
+check_untyped_defs = false
+ignore_errors = false
+ignore_missing_imports = true
+local_partial_types = true
+strict_equality = true
+warn_unreachable = true
+warn_unused_ignores = true
+
 [tool.coverage.html]
 directory = "htmlcov"
 
