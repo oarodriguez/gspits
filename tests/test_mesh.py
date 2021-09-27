@@ -7,8 +7,7 @@ from hypothesis import given
 from hypothesis import strategies as stg
 from numpy import broadcast_shapes
 
-from gspits import Partition, TimePartition
-from gspits.mesh import Mesh
+from gspits import Mesh, Partition, TimePartition
 
 valid_lower_bound_stg = stg.floats(min_value=0, max_value=2)
 valid_upper_bound_stg = stg.floats(min_value=3, max_value=4)
@@ -38,17 +37,28 @@ def test_partition_bounds(
     lower_bound: float, upper_bound: float, num_segments: int
 ):
     """Test routines for creating spatial partitions."""
+    # Check partition without the endpoint.
     partition = Partition(lower_bound, upper_bound, num_segments)
     partition_array = partition.array
     assert partition_array.min() == partition.lower_bound
     assert np.allclose(np.diff(partition_array), partition.step_size)
+
+    # Check partition with the endpoint included.
     partition = evolve(partition, endpoint=True)
     partition_array = partition.array
+    assert partition_array.max() == partition.upper_bound
     assert np.allclose(np.diff(partition_array), partition.step_size)
+
+    # Check the partition size.
+    # There is a very small round off error in this test.
+    assert partition.size == pytest.approx(
+        partition.step_size * partition.num_segments, abs=1e-8
+    )
+    assert partition.size == (partition.upper_bound - partition.lower_bound)
 
 
 # See https://stackoverflow.com/questions/19141432 for details.
-valid_time_step_stg = stg.floats(min_value=np.finfo(float).eps, max_value=128)
+valid_time_step_stg = stg.floats(min_value=np.finfo(float).eps, max_value=10)
 valid_ini_time_stg = stg.floats(min_value=-128, max_value=128)
 
 
@@ -77,15 +87,28 @@ def test_time_partition_time_step(time_step: float):
 )
 def test_time_partition(time_step: float, num_steps: int, ini_time: float):
     """Check routines for creating temporal partitions."""
-    time_mesh = TimePartition(
+    # Check partition without the endpoint.
+    time_partition = TimePartition(
         time_step=time_step, num_steps=num_steps, ini_time=ini_time
     )
-    partition_array = time_mesh.array
-    assert partition_array.min() == time_mesh.ini_time
-    assert np.allclose(np.diff(partition_array), time_mesh.time_step)
-    time_mesh = evolve(time_mesh, endpoint=True)
-    partition_array = time_mesh.array
-    assert np.allclose(np.diff(partition_array), time_mesh.time_step)
+    partition_array = time_partition.array
+    assert partition_array.min() == time_partition.ini_time
+    assert np.allclose(np.diff(partition_array), time_partition.time_step)
+
+    # Check partition with the endpoint included.
+    time_partition = evolve(time_partition, endpoint=True)
+    partition_array = time_partition.array
+    assert partition_array.max() == time_partition.finish_time
+    assert np.allclose(np.diff(partition_array), time_partition.time_step)
+
+    # Check the partition duration.
+    # There is a very small round off error in this test.
+    assert time_partition.duration == pytest.approx(
+        time_partition.time_step * time_partition.num_steps, abs=1e-8
+    )
+    assert time_partition.duration == (
+        time_partition.finish_time - time_partition.ini_time
+    )
 
 
 @given(

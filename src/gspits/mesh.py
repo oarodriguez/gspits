@@ -31,6 +31,11 @@ class Partition:
             raise ValueError
 
     @property
+    def size(self) -> float:
+        """Give the partition length."""
+        return self.upper_bound - self.lower_bound
+
+    @property
     def step_size(self):
         """Partition step size."""
         return (self.upper_bound - self.lower_bound) / self.num_segments
@@ -76,6 +81,11 @@ class TimePartition:
     def finish_time(self):
         """Partition finish time."""
         return self.ini_time + self.num_steps * self.time_step
+
+    @property
+    def duration(self) -> float:
+        """Give the partition duration."""
+        return self.finish_time - self.ini_time
 
     @property
     def array(self) -> np.ndarray:
