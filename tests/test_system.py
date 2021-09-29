@@ -6,8 +6,7 @@ from hypothesis import given
 from hypothesis import strategies as stg
 from numpy import pi
 
-from gspits import BlochState, ExternalPotential, Partition, State
-from gspits.mesh import Mesh
+from gspits import BlochState, ExternalPotential, Mesh, Partition, State
 
 
 def _make_partition(lower_bound: float, size: float, num_segments: int):
@@ -29,14 +28,14 @@ partitions_stg = stg.builds(
 )
 
 
-# Next, we define a strategy to create `Mesh` instances with a variable
-# number of partitions using a `lists` hypothesis strategy with the correct
-# number of partitions.
 def _make_mesh(partitions: list[Partition]):
     """Make a spatial mesh."""
     return Mesh(partitions=tuple(partitions))
 
 
+# Next, we define a strategy to create `Mesh` instances with a variable
+# number of partitions using a `lists` hypothesis strategy with the correct
+# number of partitions.
 meshes_stg = stg.builds(
     _make_mesh, stg.lists(partitions_stg, min_size=1, max_size=3)
 )

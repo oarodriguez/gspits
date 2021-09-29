@@ -154,7 +154,7 @@ class ExternalPotential(Protocol, metaclass=ABCMeta):
 
     @abstractmethod
     def __call__(self, mesh: Mesh) -> np.ndarray:
-        """External potential callable interface..
+        """External potential callable interface.
 
         :param mesh:
             A ``Mesh`` instance representing a domain mesh.
