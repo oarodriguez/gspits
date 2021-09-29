@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add protocol `gspits.system.ExternalPotential` to define an external
+  potential.
 - Add `gspits.system` module to implement protocols and classes used to define
   bosonic systems, such as classes `State` and `BlochState`.
 - Add `size`, `element_size`, `num_elements`, and `shape` attributes to

@@ -1,4 +1,6 @@
 """Define protocols and classes that define bosonic system."""
+from abc import ABCMeta, abstractmethod
+from typing import Protocol, runtime_checkable
 
 import numpy as np
 from attr import dataclass
@@ -7,6 +9,7 @@ from gspits import Mesh
 
 __all__ = [
     "BlochState",
+    "ExternalPotential",
     "State",
     "WaveVector",
 ]
@@ -136,3 +139,24 @@ class BlochState:
         wave_func = self.periodic_wave_func
         dv = self.mesh.element_size
         return dv * float(np.sum(np.abs(wave_func) ** 2))
+
+
+@runtime_checkable
+class ExternalPotential(Protocol, metaclass=ABCMeta):
+    """Define an external potential.
+
+    This protocol sets the signature of a callable object that serves as
+    an external potential. Examples:
+
+    - A regular function with a compatible signature.
+    - An instance of a class derived from this protocol.
+    """
+
+    @abstractmethod
+    def __call__(self, mesh: Mesh) -> np.ndarray:
+        """External potential callable interface..
+
+        :param mesh:
+            A ``Mesh`` instance representing a domain mesh.
+        """
+        raise NotImplementedError

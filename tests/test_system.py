@@ -6,7 +6,7 @@ from hypothesis import given
 from hypothesis import strategies as stg
 from numpy import pi
 
-from gspits import BlochState, Partition, State
+from gspits import BlochState, ExternalPotential, Partition, State
 from gspits.mesh import Mesh
 
 
@@ -92,3 +92,40 @@ def test_bloch_state(
     assert bloch_state.norm == pytest.approx(
         bloch_state.periodic_component.norm, abs=1e-8
     )
+
+
+def _potential_one(mesh: Mesh) -> np.ndarray:
+    """Evaluate an harmonic potential over a mesh."""
+    (x_mesh,) = mesh.arrays
+    return 0.5 * x_mesh ** 2
+
+
+class _PotentialTwo(ExternalPotential):
+    """Evaluate an harmonic potential over a mesh."""
+
+    def __call__(self, mesh: Mesh) -> np.ndarray:
+        """Callable interface."""
+        (x_mesh,) = mesh.arrays
+        return 0.5 * x_mesh ** 2
+
+
+# Strategy to generate 1D meshes and test the previously defined functions
+# and classes.
+meshes_1d_stg = stg.builds(
+    _make_mesh, stg.lists(partitions_stg, min_size=1, max_size=1)
+)
+
+
+@given(mesh=meshes_1d_stg)
+def test_external_potential(mesh: Mesh):
+    """Check behavior of `ExternalPotential` instances."""
+    # Passes, since _potential_one is a callable object and the runtime
+    # check done by `isinstance` only check if a __call__ attribute exists.
+    # Function call also passes.
+    assert isinstance(_potential_one, ExternalPotential)
+    _potential_one(mesh)
+
+    # Assert and function call pass.
+    potential_two = _PotentialTwo()
+    assert isinstance(potential_two, ExternalPotential)
+    potential_two(mesh)

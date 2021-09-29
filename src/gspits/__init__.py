@@ -10,7 +10,7 @@ Copyright © 2021, Omar Abel Rodríguez-López.
 import importlib.metadata as importlib_metadata
 
 from .mesh import Mesh, Partition, TimePartition
-from .system import BlochState, State
+from .system import BlochState, ExternalPotential, State
 
 metadata = importlib_metadata.metadata("gspits")
 
@@ -22,6 +22,7 @@ __license__ = metadata["license"]
 
 __all__ = [
     "BlochState",
+    "ExternalPotential",
     "Mesh",
     "Partition",
     "State",

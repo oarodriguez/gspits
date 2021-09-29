@@ -19,3 +19,14 @@
     :show-inheritance:
 
 ```
+
+## ``ExternalPotential``
+
+```{eval-rst}
+
+.. autoclass:: gspits.system.ExternalPotential
+    :members:
+    :show-inheritance:
+    :special-members: __call__
+
+```
