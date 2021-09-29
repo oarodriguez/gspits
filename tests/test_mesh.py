@@ -56,6 +56,62 @@ def test_partition_bounds(
     assert partition.size == (partition.upper_bound - partition.lower_bound)
 
 
+@given(
+    location=stg.floats(min_value=-2e3, max_value=2e3, allow_nan=False),
+    size=stg.floats(min_value=1, max_value=1e3, allow_nan=False),
+    num_segments=stg.integers(min_value=1, max_value=512),
+    scale=stg.floats(min_value=1, max_value=2, allow_nan=False),
+    offset=stg.floats(min_value=-1e2, max_value=1e2, allow_nan=False),
+)
+def test_partition_transformations(
+    location: float,
+    size: float,
+    num_segments: int,
+    scale: float,
+    offset: float,
+):
+    """Check routines to transform partitions."""
+    # Reference partition.
+    partition = Partition.with_size(
+        size=size, lower_bound=location, num_segments=num_segments
+    )
+    # Centered partition at the origin.
+    centered_partition = partition.origin_centered()
+
+    # Check that the important attributes are consistent among the original
+    # partition and the centered one.
+    assert partition.num_segments == centered_partition.num_segments
+    assert partition.endpoint == centered_partition.endpoint
+    assert partition.size == pytest.approx(centered_partition.size)
+    assert centered_partition.lower_bound == pytest.approx(
+        -centered_partition.upper_bound
+    )
+    assert centered_partition.midpoint == pytest.approx(0)
+
+    # Unit partition located at the origin.
+    unit_partition = partition.origin_centered_unit()
+    size_quotient = unit_partition.size / partition.size
+    step_size_quotient = unit_partition.step_size / partition.step_size
+    assert partition.num_segments == unit_partition.num_segments
+    assert partition.endpoint == unit_partition.endpoint
+    assert unit_partition.size == 1.0
+    assert size_quotient == pytest.approx(step_size_quotient)
+
+    # Scaled partition located at the origin.
+    scaled_partition = partition.scaled(factor=scale)
+    size_quotient = scaled_partition.size / partition.size
+    step_size_quotient = scaled_partition.step_size / partition.step_size
+    assert partition.num_segments == scaled_partition.num_segments
+    assert partition.endpoint == scaled_partition.endpoint
+    assert size_quotient == pytest.approx(step_size_quotient)
+
+    # Translated partition.
+    translated_partition = partition.translated(offset=offset)
+    assert partition.num_segments == translated_partition.num_segments
+    assert partition.endpoint == translated_partition.endpoint
+    assert partition.size == pytest.approx(translated_partition.size)
+
+
 # See https://stackoverflow.com/questions/19141432 for details.
 valid_time_step_stg = stg.floats(min_value=np.finfo(float).eps, max_value=10)
 valid_ini_time_stg = stg.floats(min_value=-128, max_value=128)

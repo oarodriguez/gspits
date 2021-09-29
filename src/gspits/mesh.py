@@ -36,6 +36,128 @@ class Partition:
         if not self.num_segments >= 1:
             raise ValueError
 
+    @classmethod
+    def with_size(
+        cls: type["Partition"],
+        size: float,
+        lower_bound: float,
+        num_segments: int,
+        endpoint: bool = False,
+    ) -> "Partition":
+        """Create a partition with a given lower bound and size.
+
+        This method is a convenient alternative to construct a ``Partition``
+        instance when we want to specify its size and lower bound location.
+
+        :param float size:
+            The partition size (length).
+        :param float lower_bound:
+            Location of the new partition lower bound.
+        :param int num_segments:
+            The partition number of segments.
+        :param bool endpoint:
+            Whether or not to include the endpoint in the partition. It is
+            ``False`` by default.
+        :rtype: Partition
+        """
+        return cls(
+            lower_bound=lower_bound,
+            upper_bound=lower_bound + size,
+            num_segments=num_segments,
+            endpoint=endpoint,
+        )
+
+    @classmethod
+    def make_origin_centered_unit(
+        cls: type["Partition"], num_segments: int, endpoint: bool = False
+    ) -> "Partition":
+        """Get a partition of unit length centered at the origin.
+
+        :param int num_segments:
+            The partition number of segments.
+        :param bool endpoint:
+            Whether or not to include the endpoint in the partition. It is
+            ``False`` by default.
+        :rtype: Partition
+        """
+        return cls(
+            lower_bound=-0.5,
+            upper_bound=0.5,
+            num_segments=num_segments,
+            endpoint=endpoint,
+        )
+
+    def origin_centered_unit(self) -> "Partition":
+        """Get a similar partition of unit length centered at the origin.
+
+        The new ``Partition`` instance shares the same number of segments
+        and the ``endpoint`` attribute as the current partition. However,
+        its lower and upper bounds are different.
+
+        :rtype: Partition
+        """
+        return self.make_origin_centered_unit(
+            num_segments=self.num_segments,
+            endpoint=self.endpoint,
+        )
+
+    def origin_centered(self) -> "Partition":
+        """Get a similar partition centered at the origin.
+
+        The new ``Partition`` instance shares the same number of segments
+        and the ``endpoint`` attribute as the current partition and has the
+        same size. However, its lower and upper bounds change.
+
+        :rtype: Partition
+        """
+        partition_size = self.size
+        return Partition(
+            lower_bound=-partition_size / 2,
+            upper_bound=partition_size / 2,
+            num_segments=self.num_segments,
+            endpoint=self.endpoint,
+        )
+
+    def scaled(self, factor: float) -> "Partition":
+        """Make a similar partition under a scaling transformation.
+
+        The new ``Partition`` instance shares the same number of segments
+        and the ``endpoint`` attribute as the current partition.
+
+        :param float factor:
+            A scale factor. The upper and lower bounds of the new partition
+            will be proportional to the bounds of the current one,
+            being ``factor`` the proportionality coefficient. Accordingly, the
+            size of the new partition will be scaled by the same factor too.
+        :rtype: Partition
+        """
+        return Partition(
+            lower_bound=self.lower_bound * factor,
+            upper_bound=self.upper_bound * factor,
+            num_segments=self.num_segments,
+            endpoint=self.endpoint,
+        )
+
+    def translated(self, offset: float) -> "Partition":
+        """Displace this partition by a fixed number.
+
+        The new ``Partition`` instance shares the same number of segments
+        and the ``endpoint`` attribute as the current partition and has the
+        same size. However, its lower and upper bounds change due to the
+        translation.
+
+        :param float offset:
+            The lower and upper bounds of the new partition will be
+            displaced by the amount set by ``offset``.
+        :rtype: Partition
+        """
+        return Partition(
+            lower_bound=self.lower_bound + offset,
+            upper_bound=self.upper_bound + offset,
+            num_segments=self.num_segments,
+            endpoint=self.endpoint,
+        )
+
     @property
     def size(self) -> float:
         """Give the partition length."""
@@ -45,6 +167,14 @@ class Partition:
     def step_size(self):
         """Partition step size."""
         return (self.upper_bound - self.lower_bound) / self.num_segments
+
+    @property
+    def midpoint(self) -> float:
+        """Return the partition midpoint.
+
+        :rtype: float
+        """
+        return (self.lower_bound + self.upper_bound) / 2
 
     @property
     def array(self) -> np.ndarray:
