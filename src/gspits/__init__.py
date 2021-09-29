@@ -10,6 +10,7 @@ Copyright © 2021, Omar Abel Rodríguez-López.
 import importlib.metadata as importlib_metadata
 
 from .mesh import Mesh, Partition, TimePartition
+from .system import BlochState, State
 
 metadata = importlib_metadata.metadata("gspits")
 
@@ -20,8 +21,10 @@ __description__ = metadata["description"]
 __license__ = metadata["license"]
 
 __all__ = [
+    "BlochState",
     "Mesh",
     "Partition",
+    "State",
     "TimePartition",
     "__author__",
     "__description__",

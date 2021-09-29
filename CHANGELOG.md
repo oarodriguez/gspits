@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Add `gspits.system` module to implement protocols and classes used to define
+  bosonic systems, such as classes `State` and `BlochState`.
 - Add `size`, `element_size`, `num_elements`, and `shape` attributes to
   `gspits.mesh.Mesh` instances.
 - Add `size` property to `gspits.mesh.Partition` class.
