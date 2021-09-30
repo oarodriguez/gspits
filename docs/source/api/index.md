@@ -9,6 +9,8 @@ Below, we present a list of the modules and packages that compose **gspits**.
 
 ./mesh
 
+./potentials/index
+
 ./system
 
 :::

@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Implement the one-dimensional harmonic trap external potential:
+  `gspits.potentials.onedim.HarmonicTrap`.
 - Define new methods to transform a `gspits.system.Mesh` instance:
   `origin_centered_unit`, `origin_centered`, `scaled`, and `translated`.
 - Define new methods to transform a `gspits.system.Partition` instance:
