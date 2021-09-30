@@ -30,7 +30,20 @@ release = gspits.__version__
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ["myst_parser", "sphinx.ext.autodoc", "sphinx.ext.viewcode"]
+extensions = [
+    "myst_parser",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
+    "sphinx.ext.intersphinx",
+]
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3.9", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+}
+
+autodoc_member_order = "bysource"
 
 myst_enable_extensions = ["colon_fence", "amsmath", "dollarmath"]
 myst_heading_anchors = 3
@@ -41,7 +54,7 @@ templates_path = ["_templates"]
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns: list[str] = []
 
 
 # -- Options for HTML output -------------------------------------------------
