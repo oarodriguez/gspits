@@ -195,10 +195,6 @@ def test_mesh_elements(lower_bound: float, size: float, num_segments: int):
     partition_y = Partition(lower_bound, upper_bound, num_segments)
     partition_z = Partition(lower_bound, upper_bound, num_segments)
 
-    with pytest.raises(ValueError):
-        # A mesh can have three dimensions at most.
-        Mesh((partition_x, partition_y, partition_z, partition_x))
-
     # Checks for a one-dimensional mesh.
     partitions_1d = (partition_x,)
     mesh = Mesh(partitions_1d)
@@ -226,10 +222,6 @@ def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
     partition_x = Partition(lower_bound, upper_bound, num_segments)
     partition_y = Partition(lower_bound, upper_bound, num_segments)
     partition_z = Partition(lower_bound, upper_bound, num_segments)
-
-    with pytest.raises(ValueError):
-        # A mesh can have three dimensions at most.
-        Mesh((partition_x, partition_y, partition_z, partition_x))
 
     # Checks for a one-dimensional mesh.
     partitions_1d = (partition_x,)
