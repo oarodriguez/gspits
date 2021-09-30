@@ -241,6 +241,10 @@ class TimePartition:
 MeshPartitions = tuple[Partition, ...]  # type: ignore
 MeshArrays = tuple[np.ndarray, ...]  # type: ignore
 
+# Variable types for arguments used in transformation methods.
+MeshScalingFactors = tuple[float, ...]  # type: ignore
+MeshTranslationOffsets = tuple[float, ...]  # type: ignore
+
 # Error messages.
 MESH_DIMENSION_ERROR = (
     "The mesh maximum allowed dimension is three. Therefore, you should "
@@ -335,3 +339,63 @@ class Mesh:
         """
         array_shapes = [array.shape for array in self.arrays]
         return np.broadcast_shapes(*array_shapes)
+
+    def origin_centered_unit(self) -> "Mesh":
+        """Get a new mesh of unit volume whose center lies at the origin.
+
+        This method applies a similar transformation to its internal
+        partitions to achieve the intended result.
+
+        :rtype: Mesh
+        """
+        centered_partitions = []
+        for partition in self.partitions:
+            centered_partition = partition.origin_centered_unit()
+            centered_partitions.append(centered_partition)
+        return Mesh(MeshPartitions(centered_partitions))
+
+    def origin_centered(self) -> "Mesh":
+        """Get a new mesh whose center lies at the origin.
+
+        This method applies a similar transformation to its internal
+        partitions to achieve the intended result.
+
+        :rtype: Mesh
+        """
+        centered_partitions = []
+        for partition in self.partitions:
+            centered_partition = partition.origin_centered()
+            centered_partitions.append(centered_partition)
+        return Mesh(MeshPartitions(centered_partitions))
+
+    def scaled(self, factors: MeshScalingFactors) -> "Mesh":
+        """Get a new mesh by applying a scaling transformation.
+
+        This method applies a similar transformation to its internal
+        partitions to achieve the intended result.
+
+        :param tuple[float, ...] factors:
+            A tuple with the same number of elements as this mesh dimension.
+        :rtype: Mesh
+        """
+        scaled_partitions = []
+        for partition, factor in zip(self.partitions, factors):
+            scaled_partition = partition.scaled(factor=factor)
+            scaled_partitions.append(scaled_partition)
+        return Mesh(MeshPartitions(scaled_partitions))
+
+    def translated(self, offsets: MeshTranslationOffsets) -> "Mesh":
+        """Get a new mesh by applying a translation.
+
+        This method applies a similar transformation to its internal
+        partitions to achieve the intended result.
+
+        :param tuple[float, ...] offsets:
+            A tuple with the same number of elements as this mesh dimension.
+        :rtype: Mesh
+        """
+        scaled_partitions = []
+        for partition, offset in zip(self.partitions, offsets):
+            scaled_partition = partition.translated(offset=offset)
+            scaled_partitions.append(scaled_partition)
+        return Mesh(MeshPartitions(scaled_partitions))

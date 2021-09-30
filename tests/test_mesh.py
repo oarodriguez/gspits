@@ -255,3 +255,68 @@ def test_mesh_shape(lower_bound: float, size: float, num_segments: int):
         partition_y.num_segments,
         partition_z.num_segments,
     )
+
+
+def _make_partition(lower_bound: float, size: float, num_segments: int):
+    """Make a spatial partition."""
+    return Partition.with_size(
+        size=size,
+        lower_bound=lower_bound,
+        num_segments=num_segments,
+    )
+
+
+# For our tests, we first define a strategy to create spatial partitions,
+# i.e., `Partitions` instances.
+partitions_stg = stg.builds(
+    _make_partition,
+    lower_bound=stg.floats(min_value=-10, max_value=10, allow_nan=False),
+    size=stg.floats(min_value=1, max_value=10, allow_nan=False),
+    num_segments=stg.integers(min_value=1, max_value=128),
+)
+
+
+def _make_mesh(partitions: list[Partition]):
+    """Make a spatial mesh."""
+    return Mesh(partitions=tuple(partitions))
+
+
+# Now, we define a strategy to create `Mesh` instances with a variable
+# number of partitions using a `lists` hypothesis strategy with the correct
+# number of partitions.
+meshes_stg = stg.builds(
+    _make_mesh, stg.lists(partitions_stg, min_size=1, max_size=3)
+)
+
+
+@given(mesh=meshes_stg)
+def test_mesh_transformations(mesh: Mesh):
+    """Check routines to transform meshes."""
+    # Centered mesh.
+    centered_mesh = mesh.origin_centered()
+    assert centered_mesh.size == pytest.approx(mesh.size)
+    assert centered_mesh.num_elements == mesh.num_elements
+
+    # Centered mesh of unit volume.
+    centered_unit_mesh = mesh.origin_centered_unit()
+    assert centered_unit_mesh.size == pytest.approx(1.0)
+    assert centered_unit_mesh.num_elements == mesh.num_elements
+
+    # Scaled mesh.
+    scale_factors_array = np.random.randint(
+        low=1, high=10, size=centered_unit_mesh.dimension
+    )
+    scale_factors = tuple(scale_factors_array)
+    scaled_mesh = centered_unit_mesh.scaled(factors=scale_factors)
+    expected_size = float(np.prod(scale_factors_array))
+    assert scaled_mesh.size == pytest.approx(expected_size)
+    assert scaled_mesh.num_elements == centered_unit_mesh.num_elements
+
+    # Translated mesh.
+    translate_offsets_array = np.random.randint(
+        low=1, high=10, size=centered_unit_mesh.dimension
+    )
+    translate_offsets = tuple(translate_offsets_array)
+    translated_mesh = mesh.translated(offsets=translate_offsets)
+    assert translated_mesh.size == pytest.approx(mesh.size)
+    assert translated_mesh.num_elements == mesh.num_elements

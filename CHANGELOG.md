@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Define new methods to transform a `gspits.system.Mesh` instance:
+  `origin_centered_unit`, `origin_centered`, `scaled`, and `translated`.
 - Define new methods to transform a `gspits.system.Partition` instance:
   `with_size` (class method), `make_origin_centered_unit` (class method),
   `origin_centered_unit`, `origin_centered`, `scaled`, and `translated`.
