@@ -29,7 +29,7 @@ class Partition:
     # If `False`, the upper bound is excluded.
     endpoint: bool = False
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         """Post-initialization procedure."""
         if not self.upper_bound > self.lower_bound:
             raise ValueError
@@ -160,12 +160,18 @@ class Partition:
 
     @property
     def size(self) -> float:
-        """Give the partition length."""
+        """Give the partition length.
+
+        :rtype: float
+        """
         return self.upper_bound - self.lower_bound
 
     @property
-    def step_size(self):
-        """Partition step size."""
+    def step_size(self) -> float:
+        """Partition step size.
+
+        :rtype: float
+        """
         return (self.upper_bound - self.lower_bound) / self.num_segments
 
     @property
@@ -178,7 +184,10 @@ class Partition:
 
     @property
     def array(self) -> np.ndarray:
-        """Return an array with the partition points."""
+        """Return an array with the partition points.
+
+        :rtype: numpy.ndarray
+        """
         endpoint = self.endpoint
         num_segments = self.num_segments + (1 if endpoint else 0)
         return np.linspace(
@@ -206,7 +215,7 @@ class TimePartition:
     # If `False`, the end time is excluded.
     endpoint: bool = True
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         """Post-initialization procedure."""
         if not self.num_steps >= 1:
             raise ValueError
@@ -214,18 +223,27 @@ class TimePartition:
             raise ValueError
 
     @property
-    def finish_time(self):
-        """Partition finish time."""
+    def finish_time(self) -> float:
+        """Partition finish time.
+
+        :rtype: float
+        """
         return self.ini_time + self.num_steps * self.time_step
 
     @property
     def duration(self) -> float:
-        """Give the partition duration."""
+        """Give the partition duration.
+
+        :rtype: float
+        """
         return self.finish_time - self.ini_time
 
     @property
     def array(self) -> np.ndarray:
-        """Return an array with the partition points."""
+        """Return an array with the partition points.
+
+        :rtype: numpy.ndarray
+        """
         endpoint = self.endpoint
         num_steps = self.num_steps + (1 if endpoint else 0)
         return np.linspace(
@@ -267,7 +285,7 @@ class Mesh:
     # Mesh sparse arrays.
     _arrays: MeshArrays = field(init=False, default=None, repr=False)
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         """Post-initialization tasks."""
         if self.dimension > 3:
             raise ValueError(MESH_DIMENSION_ERROR)

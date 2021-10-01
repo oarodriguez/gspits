@@ -20,7 +20,7 @@ class State:
     """Represent a quantum state.
 
     :param Mesh mesh:
-        A spatial :py:class:`Mesh` instance where the state is defined.
+        A spatial ``Mesh`` instance where the state is defined.
     :param numpy.ndarray wave_func:
         The state complex wave function.
     """
@@ -31,7 +31,7 @@ class State:
     # Array with the wave function values at the mesh points.
     wave_func: np.ndarray
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         """Post-initialization tasks."""
         if self.wave_func.shape != self.mesh.shape:
             raise ValueError
@@ -77,7 +77,7 @@ class BlochState:
     # Lattice wave vector of this state.
     wave_vector: WaveVector
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         """Post-initialization tasks."""
         wave_vector_dimension = len(self.wave_vector)
         if wave_vector_dimension != self.mesh.dimension:
@@ -156,7 +156,8 @@ class ExternalPotential(Protocol, metaclass=ABCMeta):
     def __call__(self, mesh: Mesh) -> np.ndarray:
         """External potential callable interface.
 
-        :param mesh:
+        :param Mesh mesh:
             A ``Mesh`` instance representing a domain mesh.
+        :rtype: numpy.ndarray
         """
         raise NotImplementedError
