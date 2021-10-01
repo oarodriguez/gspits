@@ -23,6 +23,9 @@ class State:
         A spatial ``Mesh`` instance where the state is defined.
     :param numpy.ndarray wave_func:
         The state complex wave function.
+
+    :raises ValueError:
+        If ``mesh`` and ``wave_func`` have incompatible dimensions.
     """
 
     # The domain mesh.
@@ -34,7 +37,11 @@ class State:
     def __attrs_post_init__(self) -> None:
         """Post-initialization tasks."""
         if self.wave_func.shape != self.mesh.shape:
-            raise ValueError
+            raise ValueError(
+                "'mesh' and 'wave_func' are incompatible, since their "
+                f"shapes are '{self.mesh.shape}' and "
+                f"'{self.wave_func.shape}', respectively."
+            )
 
     @property
     def norm(self) -> float:
@@ -66,6 +73,10 @@ class BlochState:
         The state complex wave function.
     :param tuple[float, ...] wave_vector:
         Lattice wave vector of the state.
+
+    :raises ValueError:
+        If ``mesh``, ``periodic_wave_func``, and ``wave_vector`` have
+        incompatible dimensions.
     """
 
     # The domain mesh.
@@ -81,9 +92,17 @@ class BlochState:
         """Post-initialization tasks."""
         wave_vector_dimension = len(self.wave_vector)
         if wave_vector_dimension != self.mesh.dimension:
-            raise ValueError
+            raise ValueError(
+                "'wave_vector' and 'mesh' are incompatible since the former "
+                f"has '{wave_vector_dimension}' elements and the latter "
+                f"dimension is '{self.periodic_wave_func.shape}.'"
+            )
         if self.periodic_wave_func.shape != self.mesh.shape:
-            raise ValueError
+            raise ValueError(
+                "'mesh' and 'periodic_wave_func' are incompatible, since "
+                f"their shapes are '{self.mesh.shape}' and "
+                f"'{self.periodic_wave_func.shape}', respectively."
+            )
 
     @classmethod
     def plane_wave(
