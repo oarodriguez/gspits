@@ -14,7 +14,28 @@ __all__ = [
 
 @dataclass(frozen=True)
 class Partition:
-    """Construct a spatial partition."""
+    """Construct a spatial partition.
+
+    :param float lower_bound:
+        The partition lower bound.
+    :param float upper_bound:
+        The partition upper bound.
+    :param int num_segments:
+        The partition lower bound.
+    :param bool endpoint:
+        Indicate whether to consider the upper bound as part of the
+        partition. By default, the upper bound is excluded
+        (``endpoint = False``).
+
+    :raises ValueError:
+        If ``upper_bound`` is less than ``lower_bound``.
+    :raises ValueError:
+        If ``num_segments`` is a negative integer or zero.
+    :raises ValueError:
+        If any of ``lower_bound`` or ``upper_bound`` is ``nan``.
+    """
+
+    # TODO: Make Partition instances iterable.
 
     # Lower bound.
     lower_bound: float
@@ -31,10 +52,18 @@ class Partition:
 
     def __attrs_post_init__(self) -> None:
         """Post-initialization procedure."""
+        if np.isnan(self.lower_bound):
+            raise ValueError("'nan' is not a valid value for 'lower_bound.")
+        if np.isnan(self.upper_bound):
+            raise ValueError("'nan' is not a valid value for 'upper_bound'.")
         if not self.upper_bound > self.lower_bound:
-            raise ValueError
+            raise ValueError(
+                "'upper_bound' must be greater than 'lower_bound'."
+            )
         if not self.num_segments >= 1:
-            raise ValueError
+            raise ValueError(
+                "'num_segments' must be a positive, non-zero integer."
+            )
 
     @classmethod
     def with_size(
@@ -200,7 +229,28 @@ class Partition:
 
 @dataclass(frozen=True)
 class TimePartition:
-    """Construct a time partition."""
+    """Construct a time partition.
+
+    :param float time_step:
+        The partition time step.
+    :param int num_steps:
+        The partition number of steps.
+    :param float ini_time:
+        The partition initial time. By default, it is zero.
+    :param bool endpoint:
+        Indicate whether to consider the upper bound as part of the
+        partition. By default, the upper bound is excluded
+        (``endpoint = False``).
+
+    :raises ValueError:
+        If ``time_step`` is negative or zero.
+    :raises ValueError:
+        If ``num_steps`` is a negative integer or zero.
+    :raises ValueError:
+        If any of ``time_step`` or ``ini_time`` is ``nan``.
+    """
+
+    # TODO: Make TimePartition instances iterable.
 
     # Partition time step.
     time_step: float
@@ -217,10 +267,18 @@ class TimePartition:
 
     def __attrs_post_init__(self) -> None:
         """Post-initialization procedure."""
-        if not self.num_steps >= 1:
-            raise ValueError
+        if np.isnan(self.time_step):
+            raise ValueError("'nan' is not a valid value for 'time_step.")
+        if np.isnan(self.ini_time):
+            raise ValueError("'nan' is not a valid value for 'ini_time'.")
         if not self.time_step > 0:
-            raise ValueError
+            raise ValueError(
+                "'time_step' must be a positive, non-zero number."
+            )
+        if not self.num_steps >= 1:
+            raise ValueError(
+                "'num_steps' must be a positive, non-zero integer."
+            )
 
     @property
     def finish_time(self) -> float:

@@ -13,6 +13,16 @@ valid_upper_bound_stg = stg.floats(min_value=3, max_value=4)
 valid_num_segments_steps_stg = stg.integers(min_value=1, max_value=512)
 
 
+def test_partition_nan():
+    """Check that partitions handle NaNs correctly."""
+    with pytest.raises(ValueError):
+        Partition(lower_bound=np.nan, upper_bound=1, num_segments=2)
+    with pytest.raises(ValueError):
+        Partition(lower_bound=0, upper_bound=np.nan, num_segments=2)
+    with pytest.raises(ValueError):
+        Partition(lower_bound=np.nan, upper_bound=np.nan, num_segments=2)
+
+
 @given(lower_bound=stg.floats(min_value=100, max_value=200))
 def test_partition(lower_bound: float):
     """Test spatial partitions with invalid bounds."""
@@ -110,6 +120,16 @@ def test_partition_transformations(
     assert partition.num_segments == translated_partition.num_segments
     assert partition.endpoint == translated_partition.endpoint
     assert partition.size == pytest.approx(translated_partition.size)
+
+
+def test_time_partition_nan():
+    """Check that time partitions handle NaNs correctly."""
+    with pytest.raises(ValueError):
+        TimePartition(time_step=np.nan, num_steps=2, ini_time=0)
+    with pytest.raises(ValueError):
+        TimePartition(time_step=1, num_steps=2, ini_time=np.nan)
+    with pytest.raises(ValueError):
+        TimePartition(time_step=np.nan, num_steps=2, ini_time=np.nan)
 
 
 # See https://stackoverflow.com/questions/19141432 for details.
