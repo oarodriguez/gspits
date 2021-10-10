@@ -1,5 +1,9 @@
 # ``gspits.mesh``
 
+```{eval-rst}
+.. currentmodule:: gspits.mesh
+```
+
 ## ``Partition``
 
 ```{eval-rst}

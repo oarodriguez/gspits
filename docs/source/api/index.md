@@ -4,13 +4,11 @@ Below, we present a list of the modules and packages that compose **gspits**.
 
 ## Modules and Packages
 
-:::{toctree}
+```{toctree}
 :maxdepth: 3
 
-./mesh
+./gspits.mesh
+./gspits.potentials
+./gspits.system
 
-./potentials/index
-
-./system
-
-:::
+```
