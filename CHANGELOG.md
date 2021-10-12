@@ -6,6 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Implement the harmonic external potential in one, two, and three dimensions:
+  `gspits.potentials.harmonic.HarmonicTrap`.
 - Implement the one-dimensional harmonic trap external potential:
   `gspits.potentials.onedim.HarmonicTrap`.
 - Define new methods to transform a `gspits.system.Mesh` instance:

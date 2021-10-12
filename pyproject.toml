@@ -78,6 +78,9 @@ src_paths = ["src"]
 [tool.pytest.ini_options]
 addopts = "-s -vv -ra"
 testpaths = ["tests"]
+markers = [
+  """ uses_matplotlib: tests that require a user to interact with matplotlib graphics (deselect with '-m "not uses_matplotlib"') """,
+]
 
 [tool.coverage.paths]
 source = ["src"]
