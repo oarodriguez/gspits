@@ -44,8 +44,21 @@ intersphinx_mapping = {
 }
 
 autodoc_member_order = "bysource"
+autodoc_type_aliases: dict[str, str] = {}
 
-myst_enable_extensions = ["colon_fence", "amsmath", "dollarmath"]
+myst_enable_extensions = [
+    "amsmath",
+    "colon_fence",
+    "deflist",
+    "dollarmath",
+    "html_admonition",
+    "html_image",
+    # "linkify",
+    "replacements",
+    "smartquotes",
+    "substitution",
+    "tasklist",
+]
 myst_heading_anchors = 3
 
 # Add any paths that contain templates here, relative to this directory.
