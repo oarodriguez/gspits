@@ -1,4 +1,5 @@
 """Routines to generate spatial and temporal partitions."""
+from typing import Sequence, Union
 
 import numpy as np
 from attr import dataclass, field
@@ -318,8 +319,8 @@ MeshPartitions = tuple[Partition, ...]  # type: ignore
 MeshArrays = tuple[np.ndarray, ...]  # type: ignore
 
 # Variable types for arguments used in transformation methods.
-MeshScalingFactors = tuple[float, ...]  # type: ignore
-MeshTranslationOffsets = tuple[float, ...]  # type: ignore
+MeshScalingFactors = Union[Sequence[float], float]
+MeshTranslationOffsets = Union[Sequence[float], float]
 
 # Error messages.
 MESH_DIMENSION_ERROR = (
@@ -349,7 +350,7 @@ class Mesh:
             raise ValueError(MESH_DIMENSION_ERROR)
         partition_arrays = [partition.array for partition in self.partitions]
         arrays = np.meshgrid(*partition_arrays, indexing="ij", sparse=True)
-        object.__setattr__(self, "_arrays", tuple(arrays))
+        object.__setattr__(self, "_arrays", MeshArrays(arrays))
 
     @property
     def dimension(self) -> int:
@@ -450,12 +451,18 @@ class Mesh:
         This method applies a similar transformation to its internal
         partitions to achieve the intended result.
 
-        :param tuple[float, ...] factors:
+        :param factors:
             A tuple with the same number of elements as this mesh dimension.
+        :type factors:
+            Union[Sequence[float], float]
         :rtype: Mesh
         """
+        if isinstance(factors, float):
+            final_factors = [factors] * self.dimension
+        else:
+            final_factors = list(factors)
         scaled_partitions = []
-        for partition, factor in zip(self.partitions, factors):
+        for partition, factor in zip(self.partitions, final_factors):
             scaled_partition = partition.scaled(factor=factor)
             scaled_partitions.append(scaled_partition)
         return Mesh(MeshPartitions(scaled_partitions))
@@ -466,12 +473,18 @@ class Mesh:
         This method applies a similar transformation to its internal
         partitions to achieve the intended result.
 
-        :param tuple[float, ...] offsets:
+        :param offsets:
             A tuple with the same number of elements as this mesh dimension.
+        :type offsets:
+            Union[Sequence[float], float]
         :rtype: Mesh
         """
+        if isinstance(offsets, float):
+            final_offsets = [offsets] * self.dimension
+        else:
+            final_offsets = list(offsets)
         scaled_partitions = []
-        for partition, offset in zip(self.partitions, offsets):
+        for partition, offset in zip(self.partitions, final_offsets):
             scaled_partition = partition.translated(offset=offset)
             scaled_partitions.append(scaled_partition)
         return Mesh(MeshPartitions(scaled_partitions))
