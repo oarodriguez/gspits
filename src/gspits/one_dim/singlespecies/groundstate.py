@@ -222,7 +222,7 @@ class BEPSSolver(Iterable[BEPSSolverState]):
                 # divisor.
                 if lattice_wave_vector is not None:
                     next_wave_func_idx_fft_divisor += (
-                        -2 * lattice_wave_vector * fft_wave_vectors
+                        -2 * time_step * lattice_wave_vector * fft_wave_vectors
                     )
                 next_wave_func_idx_fft = (
                     next_wave_func_idx_fft_dividend

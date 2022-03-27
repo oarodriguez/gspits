@@ -6,6 +6,9 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
+- Fix a term in the `gspits.one_dim.singlespecies.groundstate.BEPSSolver` class.
+  This fix involves a term that allows us to find the ground-state when the
+  lattice wave-vector is nonzero.
 - Implement the harmonic external potential in one, two, and three dimensions:
   `gspits.potentials.harmonic.HarmonicTrap`.
 - Implement the one-dimensional harmonic trap external potential:
