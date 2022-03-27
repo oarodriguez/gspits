@@ -8,7 +8,7 @@ from numba import njit
 from numpy import cos, pi
 
 from gspits import Partition as Mesh
-from gspits.one_dim import Hamiltonian, State
+from gspits.one_dim import ExternalPotential, Hamiltonian, State
 
 __all__ = [
     "DCHamiltonian",
@@ -323,12 +323,14 @@ class SuperDCHamiltonian(Hamiltonian):
     Represent an interacting Bose gas within a 1D, multi-layer super-lattice
     modeled by a super Dirac-comb potential.
 
-    The argument `deltas_seq` indicates the strength and relative positions
-    of each delta potential in the super-lattice. It is a sequence of
-    `DeltaSpec` objects with a given `strength` and `rel_position`. The
-    argument `lattice_period` sets the super-lattice period, while the
-    pairwise interaction magnitude between bosons is set by the
-    `interaction_strength` argument.
+    :param Sequence[DeltaSpec] deltas_seq:
+        Indicate the strength and relative positions of each delta potential
+        in the super-lattice. It is a sequence of ``DeltaSpec`` objects with
+        a given ``strength`` and ``rel_position``.
+    :param float lattice_period:
+        Set the super-lattice period.
+    :param float interaction_strength:
+        Set the pairwise interaction magnitude between bosons.
     """
 
     # Sequence with Dirac-delta potential strengths and locations.
@@ -364,7 +366,7 @@ class SuperDCHamiltonian(Hamiltonian):
         return self.interaction_strength
 
     @property
-    def external_potential(self):
+    def external_potential(self) -> ExternalPotential:
         """External potential function."""
         deltas_seq = self.deltas_seq
         lattice_period = self.lattice_period
@@ -378,7 +380,13 @@ class SuperDCHamiltonian(Hamiltonian):
         def _dc_potential(
             domain_mesh: np.ndarray,
         ) -> np.ndarray:  # pragma: no cover
-            """Evaluate a multi-rods potential over a mesh."""
+            """Evaluate a multi-rods potential over a mesh.
+
+            :param numpy.ndarray domain_mesh:
+                A mesh that defines the spatial domain where we evaluate the
+                potential.
+            :rtype: numpy.ndarray
+            """
             barrier_width = np.diff(domain_mesh)[0]
             shifted_domain_mesh = domain_mesh + lattice_period / 2
             _, shifted_domain_mesh_periodic = np.divmod(
