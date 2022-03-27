@@ -2,7 +2,7 @@
 
 Versions follow [CalVer](https://calver.org).
 
-## 2021.3.0.dev0 (Not yet released)
+## 2022.1.0 (2022-03-26)
 
 ### Added
 
@@ -40,18 +40,6 @@ Versions follow [CalVer](https://calver.org).
   - Rename class `TimeMesh` to `TimePartition`.
 - Add aliases to new class names in existing code to keep compatibility.
 
-### Deprecated
-
-TODO.
-
-### Removed
-
-TODO.
-
-### Fixed
-
-TODO.
-
 ---
 
 ## 2021.2.0 (2021-09-25)
@@ -64,8 +52,8 @@ TODO.
 - Add new 1D Hamiltonians:
   - `OLHTHamiltonian`. Represents a Bose gas within an optical lattice
     superimposed with a harmonic trap.
-  - `MRHamiltonian`. Represents a Bose gas within a multi-rod potential
-    composed of multiple consecutive wells and barriers.
+  - `MRHamiltonian`. Represents a Bose gas within a multi-rod potential composed
+    of multiple consecutive wells and barriers.
   - Implement `plane_wave_state` routine to build normalized plane wave states.
 - Add task `jupyter-lab`.
 
