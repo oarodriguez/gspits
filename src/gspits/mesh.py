@@ -65,6 +65,8 @@ class Partition:
             raise ValueError(
                 "'num_segments' must be a positive, non-zero integer."
             )
+        object.__setattr__(self, "lower_bound", float(self.lower_bound))
+        object.__setattr__(self, "upper_bound", float(self.upper_bound))
 
     @classmethod
     def with_size(
