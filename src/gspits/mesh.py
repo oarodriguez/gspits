@@ -319,7 +319,9 @@ MeshPartitions = tuple[Partition, ...]  # type: ignore
 MeshArrays = tuple[np.ndarray, ...]  # type: ignore
 
 # Variable types for arguments used in transformation methods.
-MeshScalingFactors = Union[Sequence[float], float]
+ScalingFactor = Union[float, int]
+ScalingFactorsSequence = Sequence[ScalingFactor]
+MeshScalingFactors = Union[ScalingFactorsSequence, ScalingFactor]
 MeshTranslationOffsets = Union[Sequence[float], float]
 
 # Error messages.
@@ -342,7 +344,7 @@ class Mesh:
     partitions: MeshPartitions
 
     # Mesh sparse arrays.
-    _arrays: MeshArrays = field(init=False, default=None, repr=False)
+    _arrays: MeshArrays = field(init=False, default=None, repr=False, eq=False)
 
     def __attrs_post_init__(self) -> None:
         """Post-initialization tasks."""
@@ -452,17 +454,28 @@ class Mesh:
         partitions to achieve the intended result.
 
         :param factors:
-            A tuple with the same number of elements as this mesh dimension.
-        :type factors:
-            Union[Sequence[float], float]
-        :rtype: Mesh
+            A sequence with the scaling factors. This sequence should have
+            the same number of elements as this mesh dimension.
         """
-        if isinstance(factors, float):
-            final_factors = [factors] * self.dimension
+        if isinstance(factors, Sequence):
+            return self._scaled_by_list(factors)
         else:
-            final_factors = list(factors)
+            return self._scaled_by_list([factors] * self.dimension)
+
+    def _scaled_by_list(self, factors: ScalingFactorsSequence):
+        """Get a new mesh by applying a scaling transformation.
+
+        This method applies an analogous transformation to its internal
+        partitions to achieve the intended result. The factor position
+        in the sequence determines the scale of the corresponding Partition.
+
+        :param factors:
+           A sequence with the scaling factors. This sequence should have
+            the same number of elements as this mesh dimension.
+        """
+        factors = [float(factor) for factor in factors]
         scaled_partitions = []
-        for partition, factor in zip(self.partitions, final_factors):
+        for partition, factor in zip(self.partitions, factors):
             scaled_partition = partition.scaled(factor=factor)
             scaled_partitions.append(scaled_partition)
         return Mesh(MeshPartitions(scaled_partitions))

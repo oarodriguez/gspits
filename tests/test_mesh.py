@@ -301,6 +301,35 @@ meshes_stg = stg.builds(
 )
 
 
+@given(
+    partition=stg.builds(
+        _make_partition,
+        lower_bound=stg.integers(min_value=-10, max_value=10),
+        size=stg.integers(min_value=1, max_value=10),
+        num_segments=stg.integers(min_value=1, max_value=128),
+    ),
+    non_unit_factor=stg.floats(
+        allow_nan=False, min_value=0, max_value=1e3, exclude_min=True
+    ),
+)
+def test_partition_equality(partition: Partition, non_unit_factor: float):
+    """Test a Partition's instance behavior under equality comparisons."""
+    # Scale a partition by an integer value.
+    partition_scaled_1 = partition.scaled(1)
+    assert partition_scaled_1 == partition
+
+    # Scale a partition by a float value.
+    partition_scaled_2 = partition.scaled(1.0)
+    assert partition_scaled_2 == partition
+
+    # Check that several equal partitions collapse into a unique element
+    # in a set.
+    assert len({partition, partition_scaled_1, partition_scaled_2}) == 1
+
+    # Check a simple inequality.
+    assert partition.scaled(non_unit_factor) != partition
+
+
 @given(mesh=meshes_stg)
 def test_mesh_transformations(mesh: Mesh):
     """Check routines to transform meshes."""
@@ -332,3 +361,28 @@ def test_mesh_transformations(mesh: Mesh):
     translated_mesh = mesh.translated(offsets=translate_offsets)
     assert translated_mesh.size == pytest.approx(mesh.size)
     assert translated_mesh.num_elements == mesh.num_elements
+
+
+@given(
+    mesh=stg.builds(
+        _make_mesh, stg.lists(partitions_stg, min_size=1, max_size=1)
+    ),
+    non_unit_factor=stg.floats(
+        allow_nan=False, min_value=0, max_value=1e3, exclude_min=True
+    ),
+)
+def test_mesh_equality(mesh: Mesh, non_unit_factor: float):
+    """Test a Mesh's instance behavior under equality comparisons."""
+    # Scale a mesh by an integer value.
+    mesh_scaled_1 = mesh.scaled(1)
+    assert mesh_scaled_1 == mesh
+
+    # Scale a mesh by a float value.
+    mesh_scaled_2 = mesh.scaled(1.0)
+    assert mesh_scaled_2 == mesh
+
+    # Check that several equal meshes collapse into a unique element in a set.
+    assert len({mesh, mesh_scaled_1, mesh_scaled_2}) == 1
+
+    # Check a simple inequality.
+    assert mesh.scaled(non_unit_factor) != mesh
