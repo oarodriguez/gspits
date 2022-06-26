@@ -120,7 +120,8 @@ valid_freqs_meshes_1d_stg = builds(
 )
 
 
-@pytest.mark.uses_matplotlib
+@pytest.mark.is_end_to_end_test
+@pytest.mark.is_interactive_test
 @given(freqs_mesh=valid_freqs_meshes_1d_stg)
 @settings(deadline=10000, max_examples=10)
 def test_harmonic_trap_1d_plot(freqs_mesh: FreqsMesh):
@@ -155,7 +156,8 @@ valid_freqs_meshes_2d_stg = builds(
 )
 
 
-@pytest.mark.uses_matplotlib
+@pytest.mark.is_end_to_end_test
+@pytest.mark.is_interactive_test
 @given(freqs_mesh=valid_freqs_meshes_2d_stg)
 @settings(deadline=10000, max_examples=10)
 def test_harmonic_trap_2d_plot(freqs_mesh: FreqsMesh):

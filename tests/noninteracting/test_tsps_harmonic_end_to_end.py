@@ -20,7 +20,7 @@ logger.addHandler(RichHandler())
 FREQUENCY = 1
 
 
-@pytest.mark.integration_test
+@pytest.mark.is_end_to_end_test
 @pytest.mark.is_interactive_test
 @given(freq=stg.integers(min_value=1, max_value=10), mesh=meshes_1d_stg)
 @settings(deadline=10000, max_examples=1)
@@ -58,7 +58,7 @@ def test_solver_ground_state_1d(freq: float, mesh: Mesh):
     pyplot.show()
 
 
-@pytest.mark.integration_test
+@pytest.mark.is_end_to_end_test
 @pytest.mark.is_interactive_test
 @given(freq=stg.integers(min_value=1, max_value=10), mesh=meshes_2d_stg)
 @settings(deadline=40000, max_examples=1)
