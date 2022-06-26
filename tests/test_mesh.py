@@ -309,7 +309,7 @@ meshes_stg = stg.builds(
         num_segments=stg.integers(min_value=1, max_value=128),
     ),
     non_unit_factor=stg.floats(
-        allow_nan=False, min_value=0, max_value=1e3, exclude_min=True
+        allow_nan=False, min_value=1, max_value=1e3, exclude_min=True
     ),
 )
 def test_partition_equality(partition: Partition, non_unit_factor: float):
@@ -368,7 +368,7 @@ def test_mesh_transformations(mesh: Mesh):
         _make_mesh, stg.lists(partitions_stg, min_size=1, max_size=1)
     ),
     non_unit_factor=stg.floats(
-        allow_nan=False, min_value=0, max_value=1e3, exclude_min=True
+        allow_nan=False, min_value=1, max_value=1e3, exclude_min=True
     ),
 )
 def test_mesh_equality(mesh: Mesh, non_unit_factor: float):
