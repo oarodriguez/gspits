@@ -317,8 +317,8 @@ class TimePartition:
 
 # Mesh attributes types.
 # See bug https://github.com/python/mypy/issues/9980.
-MeshPartitions = tuple[Partition, ...]  # type: ignore
-MeshArrays = tuple[np.ndarray, ...]  # type: ignore
+MeshPartitions = tuple[Partition, ...]
+MeshArrays = tuple[np.ndarray, ...]
 
 # Variable types for arguments used in transformation methods.
 ScalingFactor = Union[float, int]

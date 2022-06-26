@@ -6,7 +6,8 @@ Versions follow [CalVer](https://calver.org).
 
 ### Added
 
-TODO.
+- Implement the class `gspits.noninteracting.tsps.PSSolver`, a pseudo-spectral
+  solver to get a few eigenstates of non-interacting systems.
 
 ### Changed
 

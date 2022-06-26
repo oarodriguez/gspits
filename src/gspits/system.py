@@ -60,7 +60,7 @@ class State:
 
 # BlochState attributes types.
 # See bug https://github.com/python/mypy/issues/9980.
-WaveVector = tuple[float, ...]  # type: ignore
+WaveVector = list[float]
 
 
 @dataclass(frozen=True, slots=True)

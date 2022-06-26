@@ -76,7 +76,7 @@ line_length = 79
 src_paths = ["src"]
 
 [tool.pytest.ini_options]
-addopts = "-s -vv -ra"
+addopts = """ -s -vv -ra --durations=5 -m "not is_interactive_test" """
 testpaths = ["tests"]
 markers = [
   """ uses_matplotlib: tests that require a user to interact with matplotlib graphics (deselect with '-m "not uses_matplotlib"') """,
