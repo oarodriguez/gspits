@@ -11,7 +11,10 @@ Versions follow [CalVer](https://calver.org).
 
 ### Changed
 
-TODO.
+- Update the project dependencies.
+- Updated the Python versions considered by the `black` formatter.
+- Add a few configurations directive for the `pyright` tool that affect
+  Visual Studio Code.
 
 ### Deprecated
 
