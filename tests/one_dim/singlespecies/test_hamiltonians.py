@@ -366,9 +366,9 @@ def test_dc_hamiltonian(
     assert np.all(np.diff(nonzero_potential_indices) == num_segments)
 
     # Show some debug information.
-    note(mesh.array)
-    note(potential_array)
-    note(nonzero_potential_indices)
+    note(f"{mesh.array}")
+    note(f"{potential_array}")
+    note(f"{nonzero_potential_indices}")
 
 
 # Fix the lower and upper bounds to test the
@@ -428,6 +428,6 @@ def test_super_dc_hamiltonian(
     )
 
     # Show some debug information.
-    note(mesh.array)
-    note(potential_array)
-    note(nonzero_potential_indices)
+    note(f"{mesh.array}")
+    note(f"{potential_array}")
+    note(f"{nonzero_potential_indices}")

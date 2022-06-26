@@ -40,7 +40,8 @@ def test_beps_solver_ground_state(freq: float):
         abs_tol=1e-8,
         max_time_step_iters=256,
     )
-    ground_state = beps_solver.final_state.state
+    solver_final_state = beps_solver.final_state
+    ground_state = solver_final_state.state
     assert ground_state.norm == pytest.approx(1, abs=1e-8)
 
 
