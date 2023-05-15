@@ -9,19 +9,10 @@ import shutil
 from enum import Enum, unique
 from pathlib import Path
 from subprocess import run
-from typing import List
 
 import click
 from click.exceptions import Exit
-from dotenv import dotenv_values
 
-# The default name of the file that `python-dotenv` will parse.
-DEFAULT_DOTENV_FILE = ".env"
-
-# Indicate to `python-dotenv` which file to load instead of the default.
-DOTENV_FILE_ENV_VAR_NAME = "DOTENV_FILE"
-
-# Constants.
 PROJECT_DIR = Path(__file__).parent
 SRC_DIR = PROJECT_DIR / "src"
 TESTS_DIR = PROJECT_DIR / "tests"
@@ -32,13 +23,18 @@ DATA_DIR = PROJECT_DIR / "data"
 NOTEBOOKS_DIR = PROJECT_DIR / "notebooks"
 SCRIPTS_DIR = PROJECT_DIR / "scripts"
 TASKS_FILE = PROJECT_DIR / "tasks.py"
+README_FILE = PROJECT_DIR / "README.md"
+CHANGELOG_FILE = PROJECT_DIR / "CHANGELOG.md"
 
+# NOTE: See https://stackoverflow.com/a/32799942 to understand why we use
+#   shutil.which().
 PYTHON_CMD = "python"
 POETRY_CMD = shutil.which("poetry")
 JUPYTER_CMD = shutil.which("jupyter")
 PIP_CMD = "pip"
 ISORT_CMD = "isort"
 BLACK_CMD = "black"
+MDFORMAT_CMD = shutil.which("mdformat")
 PYDOCSTYLE_CMD = "pydocstyle"
 FLAKE8_CMD = "flake8"
 MYPY_CMD = "mypy"
@@ -48,14 +44,6 @@ SPHINX_BUILD_CMD = "sphinx-build"
 # Coverage report XML file.
 COVERAGE_XML = "coverage.xml"
 
-
-def _run(command: List[str]):
-    """Run a subcommand through python subprocess.run routine."""
-    # NOTE: See https://stackoverflow.com/a/32799942 in case we want to
-    #  remove shell=True.
-    return run(command)
-
-
 app = click.Group("tasks")
 
 
@@ -64,6 +52,8 @@ def _get_package_info():
     buffer = run(
         [POETRY_CMD, "version"], capture_output=True, encoding="utf-8"
     )
+    if rc := buffer.returncode:
+        raise Exit(rc)
     buffer_contents = buffer.stdout
     name: str
     version_: str
@@ -89,7 +79,8 @@ def install():
         name, version_ = _get_installed_package_info()
     except ModuleNotFoundError:
         install_args = [POETRY_CMD, "install"]
-        run(install_args)
+        if rc := run(install_args).returncode:
+            raise Exit(rc)
         print("Module installed successfully.")
         verify_message = (
             "Check installed version through "
@@ -97,7 +88,7 @@ def install():
         )
         print(verify_message)
     else:
-        print(f"{name} {version_} is already installed.")
+        raise click.ClickException(f"{name} {version_} is already installed.")
 
 
 @app.command()
@@ -109,7 +100,8 @@ def uninstall():
     try:
         name, version_ = _get_installed_package_info()
         pip_args = [PIP_CMD, "uninstall", "--yes", name]
-        run(pip_args)
+        if rc := run(pip_args).returncode:
+            raise Exit(rc)
         print(f"Package '{name} {version_}' uninstalled successfully.")
     except ModuleNotFoundError:
         name, version_ = _get_package_info()
@@ -126,9 +118,10 @@ def upgrade():
         name, old_version = _get_installed_package_info()
         if old_version == new_version:
             print("The installed project package is the latest.")
-            raise Exit()
+            raise Exit(1)
         pip_args = [PIP_CMD, "uninstall", "--yes", name]
-        run(pip_args)
+        if rc := run(pip_args).returncode:
+            raise Exit(rc)
         print(f"Package '{name} {old_version}' uninstalled successfully.")
     except ModuleNotFoundError:
         raise click.ClickException(
@@ -136,7 +129,8 @@ def upgrade():
         )
 
     install_args = [POETRY_CMD, "install"]
-    run(install_args)
+    if rc := run(install_args).returncode:
+        raise Exit(rc)
     print("Package upgraded successfully.")
     verify_message = (
         "Check installed version through "
@@ -148,9 +142,14 @@ def upgrade():
 @app.command()
 def version():
     """Show the installed project version."""
-    import gspits
+    try:
+        import gspits
 
-    print(f"{gspits.metadata['name']} {gspits.__version__}")
+        print(f"{gspits.metadata['name']} {gspits.__version__}")
+    except ModuleNotFoundError:
+        raise click.ClickException(
+            "The package 'gspits' has not been installed."
+        )
 
 
 @app.command()
@@ -164,7 +163,7 @@ def tests():
         "--cov-report",
         f"xml:./{COVERAGE_XML}",
     ]
-    _run(pytest_args)
+    raise Exit(run(pytest_args).returncode)
 
 
 @app.command(name="format")
@@ -181,6 +180,9 @@ def format_():
         str(DOCS_DIR),
         str(NOTEBOOKS_DIR),
     ]
+    if rc := run(format_args).returncode:
+        raise Exit(rc)
+
     isort_args = [
         ISORT_CMD,
         str(TASKS_FILE),
@@ -189,8 +191,25 @@ def format_():
         str(DOCS_DIR),
         str(NOTEBOOKS_DIR),
     ]
-    _run(format_args)
-    _run(isort_args)
+    if rc := run(isort_args).returncode:
+        raise Exit(rc)
+
+
+@app.command()
+def format_docs():
+    """Execute formatting tasks for markdown files.
+
+    Format markdown files using the `mdformat` library.
+    """
+    format_args = [
+        MDFORMAT_CMD,
+        str(SRC_DIR),
+        str(DOCS_DIR),
+        str(NOTEBOOKS_DIR),
+        str(README_FILE),
+        str(CHANGELOG_FILE),
+    ]
+    raise Exit(run(format_args).returncode)
 
 
 @app.command()
@@ -207,7 +226,7 @@ def typecheck():
         # str(DOCS_DIR),
         # str(NOTEBOOKS_DIR),
     ]
-    _run(mypy_args)
+    raise Exit(run(mypy_args).returncode)
 
 
 @app.command()
@@ -225,6 +244,9 @@ def lint():
         str(DOCS_DIR),
         str(NOTEBOOKS_DIR),
     ]
+    if rc := run(pydocstyle_args).returncode:
+        raise Exit(rc)
+
     flake8_args = [
         FLAKE8_CMD,
         str(TASKS_FILE),
@@ -234,8 +256,8 @@ def lint():
         str(NOTEBOOKS_DIR),
         "--statistics",
     ]
-    _run(pydocstyle_args)
-    _run(flake8_args)
+    if rc := run(flake8_args).returncode:
+        raise Exit(rc)
 
 
 @unique
@@ -268,7 +290,7 @@ def build_docs(doc_format: str):
     ]
     doc_format_ = DocFormat[doc_format]
     build_docs_args.extend(["-b", doc_format_])
-    _run(build_docs_args)
+    raise Exit(run(build_docs_args).returncode)
 
 
 @unique
@@ -294,28 +316,20 @@ cleaning_tasks = list(CleaningTask.__members__.keys())
 )
 def clean(task: str):
     """Clean project resources."""
-    task_ = None if task is None else CleaningTask[task]
-    if task_ is None or task_ is CleaningTask.DOCS:
-        shutil.rmtree(DOCS_BUILD_DIR, ignore_errors=True)
-
-
-def _get_environ():
-    """Get environment variables from file.
-
-    The returned dictionary include the variables loaded by `python-dotenv`.
-    The system environment variables are not overridden.
-    """
-    environ = {}
-    dotenv_file = os.getenv(DOTENV_FILE_ENV_VAR_NAME, DEFAULT_DOTENV_FILE)
-    # TODO: Allow override system environment variables?
-    environ.update(dotenv_values(dotenv_file), **os.environ)
-    return environ
+    try:
+        task_ = None if task is None else CleaningTask[task]
+        if task_ is None or task_ is CleaningTask.DOCS:
+            shutil.rmtree(DOCS_BUILD_DIR)
+    except Exception:
+        raise Exit(1)
 
 
 @app.command()
 def jupyter_lab():
     """Execute a jupyter lab server instance in the current directory."""
-    environ = _get_environ()
+    environ = {}
+    environ.update(os.environ)
+    # Set project environment variables.
     environ["DATA_DIR"] = str(DATA_DIR)
     environ["NOTEBOOKS_DIR"] = str(NOTEBOOKS_DIR)
     environ["SCRIPTS_DIR"] = str(SCRIPTS_DIR)
@@ -326,7 +340,7 @@ def jupyter_lab():
         "lab",
         "--no-browser",
     ]
-    run(jupyter_lab_args, env=environ)
+    raise Exit(run(jupyter_lab_args, env=environ).returncode)
 
 
 if __name__ == "__main__":
