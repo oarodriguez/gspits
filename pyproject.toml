@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "gspits"
-version = "2022.2.0.dev0"
+version = "23.5.1.dev0"
 description = "A collection of routines to analyze the ground-state properties and dynamics of a Bose gas using the Gross-Pitaevskii equation."
 license = "Apache-2.0"
 authors = [

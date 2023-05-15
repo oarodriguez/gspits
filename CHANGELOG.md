@@ -2,15 +2,19 @@
 
 Versions follow [CalVer](https://calver.org).
 
-## 2022.2.0.dev0 (Not yet released)
+## 23.5.1.dev0 (Not yet released)
 
 ### Added
 
+- Use the `mdformat` library to format markdown files.
 - Implement the class `gspits.noninteracting.tsps.PSSolver`, a pseudo-spectral
   solver to get a few eigenstates of non-interacting systems.
 
 ### Changed
 
+- Update the `pre-commit` hooks.
+- Update the `pyproject.toml` and `poetry.lock` files.
+- Change the version scheme, so we use two-digits for the year part of the version number.
 - Update the project dependencies.
 - Updated the Python versions considered by the `black` formatter.
 - Add a few configurations directive for the `pyright` tool that affect
@@ -28,7 +32,7 @@ TODO.
 
 - Fix a few failing tests.
 
----
+______________________________________________________________________
 
 ## 2022.1.0 (2022-03-26)
 
@@ -68,7 +72,7 @@ TODO.
   - Rename class `TimeMesh` to `TimePartition`.
 - Add aliases to new class names in existing code to keep compatibility.
 
----
+______________________________________________________________________
 
 ## 2021.2.0 (2021-09-25)
 
@@ -110,7 +114,7 @@ TODO.
 - Fix the normalization procedure to construct a Bloch plane wave using the
   `BlochState.plane_wave` class method.
 
----
+______________________________________________________________________
 
 ## 2021.1.0 (2021-09-01)
 
@@ -125,7 +129,7 @@ TODO.
   - The class `HTHamiltonian` represents a 1D Bose gas within a harmonic trap
     external potential.
 
----
+______________________________________________________________________
 
 ## 0.1.0 (2021-04-29)
 
